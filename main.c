@@ -81,7 +81,6 @@ void show_main_menu(void);
  * 
  */
 void show_color_menu(void);
-
 /**
  * @brief encode a wine into a struct Vin.
  * 
@@ -99,6 +98,16 @@ short encodeVin(struct Vin vin[]);
  * @param argv Array that contains the arguments passed to the running binary
  * @return int 
  */
+
+/**
+ * @brief print all the fiels of the struct Vin to the screen
+ * 
+ * @param vin valid struct vin
+ */
+
+void AfficheVin(struct Vin vin);
+
+
 int main(int argc, char *argv[])
 {
     struct Vin vins[1000];
@@ -106,6 +115,9 @@ int main(int argc, char *argv[])
     struct IndVin index[1000];  /* index */
     int choice;
     int running = 1;
+
+    char id[3];
+    int i;
 
     while (running)
     {
@@ -124,7 +136,18 @@ int main(int argc, char *argv[])
         else if (choice == 2)
             ;
         else if (choice == 3)
-            ;
+        {
+            printf("Entrez l'ID : ");
+            secureInput(id, sizeof(id));
+            
+            for (i = 0; i < 1000; i++)
+            {
+                if (vins[i].IdVin == atoi(id))
+                {
+                    AfficheVin(vins[i]);
+                }
+            }
+        }
         else if (choice == 99)
             running = 0;
         else
@@ -179,9 +202,10 @@ short secureInput(char *str, int size_str)
 {
     int c, i = 0;
 
-    while (i < size_str &&((c = getchar()) != '\n') && c != EOF)
+    while (((c = getchar()) != '\n') && c != EOF)
     {
-        *str++ = c;
+        if (i < size_str)
+            *str++ = c;
         i++;
     }
     *str = '\0';
@@ -198,20 +222,28 @@ short encodeVin(struct Vin vin[])
 {
     assert(vin != NULL);
 
-    int status = 0, color_choice, i, digit_check;
+    int status = 0, color_choice, i, digit_check, date, c;
     char buffer[10];
     vin->IdVin = Id_init++;
 
     printf("Producteur : ");
     status = secureInput(vin->producteur, sizeof(vin->producteur));
+    if (status == 0)
+        return 0;
     printf("nom de cuvee : ");
     status = secureInput(vin->NomCuvee, sizeof(vin->NomCuvee));
+    if (status == 0)
+        return 0;
     printf("Appellation : ");
     status = secureInput(vin->Appellation, sizeof(vin->Appellation));
+    if (status == 0)
+        return 0;
     printf("Region : ");
     status = secureInput(vin->Region, sizeof(vin->Region));
+    if (status == 0);
     printf("Pays : ");
     status = secureInput(vin->Pays, sizeof(vin->Pays));
+    if (status == 0);
 
     do
     {
@@ -221,6 +253,8 @@ short encodeVin(struct Vin vin[])
         show_color_menu();
         printf("Couleur : ");
         status = secureInput(buffer, sizeof(buffer));
+        if (status == 0)
+            return 0;
         for (i = 0; i < 1; i++)
         {
             if (!isdigit(buffer[i]))
@@ -233,9 +267,74 @@ short encodeVin(struct Vin vin[])
             printf("\nChoix Invalide !\n");
 
     }while(digit_check == 0 || (color_choice < 1 || color_choice > 7));
-
     strcpy(vin->Couleur, couleur_types[color_choice-1]);
+
+    do
+    {
+        digit_check = 1;
+
+        printf("Entrez la date (à partir de 1800): ");
+        status = secureInput(vin->Annee, sizeof(vin->Annee));
+        if (status == 0)
+            return 0;
+
+        for (i = 0; i < 4; i++)
+        {
+            if (!isdigit(vin->Annee[i]))
+            digit_check = 0;
+        }
+
+       date = atoi(vin->Annee);
+        if (digit_check == 0 || date < 1800)
+            printf("\nDate Invalide !\n");
+
+    }while (digit_check == 0 || date < 1800);
     
+    do
+    {
+        printf("Bio ? (O/N) : ");
+        status = secureInput(buffer, sizeof(buffer));
+        if (status == 0)
+            return 0;
+        
+        if (*buffer == 'o' || *buffer == 'O')
+            vin->Bio = 'T';
+        else if (*buffer == 'n' || *buffer == 'N')
+            vin->Bio = 'F';
+        
+        if (buffer[1] != '\0')
+            c = '\0';
 
-
+    } while (*buffer != 'O' && *buffer != 'o' && *buffer != 'N' && *buffer != 'n');
+    
 }
+
+void AfficheVin(struct Vin vin)
+{
+    printf("\n\nId : %ld\t",vin.IdVin);
+    printf("Producteur : %s\t", vin.producteur);
+    printf("Nom de cuvee : %s\t", vin.NomCuvee);
+    printf("Appelation : %s\t", vin.Appellation);
+    printf("Region : %s\t", vin.Region);
+    printf("Pays : %s\t", vin.Pays);
+    printf("Couleur : %s\t", vin.Couleur);
+    printf("Annee : %s\t", vin.Annee);
+    printf("Bio : %c\t", vin.Bio);
+    printf("Garde : %s\n\n", vin.Garde);
+}
+
+/*
+struct Vin
+{
+    long IdVin;
+    char producteur[50];
+    char NomCuvee[50];
+    char Appellation[40];
+    char Region[25];
+    char Pays[50];
+    char Couleur[20];
+    char Annee[5];
+    char Bio;
+    char Garde[5];
+};
+*/
