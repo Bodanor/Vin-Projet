@@ -89,7 +89,7 @@ void show_color_menu(void);
  * @return 1 : If all data have been successfully encodede into the vin struct without beeing interrupted.
  */
 
-short encodeVin(struct Vin vin[]);
+short EncodeVin(struct Vin *vin);
 
 /**
  * @brief The main function where all the magic happens
@@ -105,7 +105,8 @@ short encodeVin(struct Vin vin[]);
  * @param vin valid struct vin
  */
 
-void AfficheVin(struct Vin vin);
+
+void AfficheVin(struct Vin vin, struct IndVin index);
 
 
 int main(int argc, char *argv[])
@@ -117,7 +118,7 @@ int main(int argc, char *argv[])
     int running = 1;
 
     char id[3];
-    int i;
+    int i, status;
 
     while (running)
     {
@@ -129,7 +130,9 @@ int main(int argc, char *argv[])
 
         if (choice == 1)
         {
-            encodeVin(vins);
+            status = EncodeVin(&vins[Id_init]);
+            if (!status)
+                printf("\n\nEncodage interrompu par l'utilisateur !\n\n");
         }
         else if (choice == 1)
             ;
@@ -144,7 +147,7 @@ int main(int argc, char *argv[])
             {
                 if (vins[i].IdVin == atoi(id))
                 {
-                    AfficheVin(vins[i]);
+                    AfficheVin(vins[i], index[i]);
                 }
             }
         }
@@ -152,7 +155,7 @@ int main(int argc, char *argv[])
             running = 0;
         else
         {
-            printf("Choix invalide !\n");
+            printf("\nChoix invalide !\n");
         }
     }
 
@@ -218,13 +221,13 @@ short secureInput(char *str, int size_str)
 
 }
 
-short encodeVin(struct Vin vin[])
+short EncodeVin(struct Vin *vin)
 {
     assert(vin != NULL);
 
     int status = 0, color_choice, i, digit_check, date, c;
     char buffer[10];
-    vin->IdVin = Id_init++;
+    vin->IdVin = Id_init;
 
     printf("Producteur : ");
     status = secureInput(vin->producteur, sizeof(vin->producteur));
@@ -306,10 +309,33 @@ short encodeVin(struct Vin vin[])
             c = '\0';
 
     } while (*buffer != 'O' && *buffer != 'o' && *buffer != 'N' && *buffer != 'n');
+
+    do
+    {
+        digit_check = 1;
+
+        printf("Entrez la garde : ");
+        status = secureInput(vin->Garde, sizeof(vin->Garde));
+        if (!status)
+            return 0;
+        for (i = 0; i < sizeof(vin->Garde)-1; i++)
+        {
+            if (!isdigit(vin->Garde[i]))
+                digit_check = 0;
+
+        }
+        if (!digit_check || strlen(vin->Garde) != 4)
+        {
+            printf("\nGarde Invalide !\n");
+            digit_check = 0;
+        }
+    }while (digit_check == 0);
+
+    Id_init++; // If User didn't unterrupt the encoding, then we increment the index.
     
 }
 
-void AfficheVin(struct Vin vin)
+void AfficheVin(struct Vin vin, struct IndVin index)
 {
     printf("\n\nId : %ld\t",vin.IdVin);
     printf("Producteur : %s\t", vin.producteur);
@@ -322,19 +348,3 @@ void AfficheVin(struct Vin vin)
     printf("Bio : %c\t", vin.Bio);
     printf("Garde : %s\n\n", vin.Garde);
 }
-
-/*
-struct Vin
-{
-    long IdVin;
-    char producteur[50];
-    char NomCuvee[50];
-    char Appellation[40];
-    char Region[25];
-    char Pays[50];
-    char Couleur[20];
-    char Annee[5];
-    char Bio;
-    char Garde[5];
-};
-*/
