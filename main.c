@@ -106,7 +106,7 @@ short EncodeVin(struct Vin *vin);
  */
 
 
-void AfficheVin(struct Vin vin, struct IndVin index);
+void AfficheVin(struct Vin *vin, struct IndVin *index);
 
 
 int main(int argc, char *argv[])
@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
 
         if (choice == 1)
         {
-            status = EncodeVin(&vins[Id_init]);
+            status = EncodeVin(&vins[Id_init-1]);
             if (!status)
                 printf("\n\nEncodage interrompu par l'utilisateur !\n\n");
         }
@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
             {
                 if (vins[i].IdVin == atoi(id))
                 {
-                    AfficheVin(vins[i], index[i]);
+                    AfficheVin(&vins[i], &index[i]);
                 }
             }
         }
@@ -335,16 +335,16 @@ short EncodeVin(struct Vin *vin)
     
 }
 
-void AfficheVin(struct Vin vin, struct IndVin index)
+void AfficheVin(struct Vin *vin, struct IndVin *index)
 {
-    printf("\n\nId : %ld\t",vin.IdVin);
-    printf("Producteur : %s\t", vin.producteur);
-    printf("Nom de cuvee : %s\t", vin.NomCuvee);
-    printf("Appelation : %s\t", vin.Appellation);
-    printf("Region : %s\t", vin.Region);
-    printf("Pays : %s\t", vin.Pays);
-    printf("Couleur : %s\t", vin.Couleur);
-    printf("Annee : %s\t", vin.Annee);
-    printf("Bio : %c\t", vin.Bio);
-    printf("Garde : %s\n\n", vin.Garde);
+    printf("\n\nId : %ld\t",vin->IdVin);
+    printf("Producteur : %s\t", vin->producteur);
+    printf("Nom de cuvee : %s\t", vin->NomCuvee);
+    printf("Appelation : %s\t", vin->Appellation);
+    printf("Region : %s\t", vin->Region);
+    printf("Pays : %s\t", vin->Pays);
+    printf("Couleur : %s\t", vin->Couleur);
+    printf("Annee : %s\t", vin->Annee);
+    printf("Bio : %c\t", vin->Bio);
+    printf("Garde : %s\n\n", vin->Garde);
 }
