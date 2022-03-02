@@ -15,7 +15,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-int Id_init = 1;
 
 const char *couleur_types[] = {
     "rouge tranquille",
@@ -89,7 +88,7 @@ void show_color_menu(void);
  * @return 1 : If all data have been successfully encodedd into the vin struct without beeing interrupted.
  */
 
-short EncodeVin(struct Vin *vin);
+short EncodeVin(struct Vin *vin, int nvin);
 
 /**
  * @brief The main function where all the magic happens
@@ -100,13 +99,17 @@ short EncodeVin(struct Vin *vin);
  */
 
 /**
- * @brief print all the fiels of the struct Vin to the screen
+ * @brief print all the fields of a given ID if it exists in the array of struct to the screen.
  * 
  * @param vin valid struct vin
+ * @param nvin how many wine have been encoded till now
+ * @param ID ID to look for in the array <vin>
+ * 
+ * @return 0: if the ID has been found in the array <vin>
+ * @return -1: If the ID doesn't exist. So the wine has not yet been created.
  */
 
-
-void AfficheVin(struct Vin *vin, struct IndVin *index);
+short AfficheVin(struct Vin *vin, int nvin, int ID);
 
 
 void show_all(struct Vin *vin, struct IndVin *index, int struct_size);
@@ -128,6 +131,7 @@ int main(int argc, char *argv[])
 
     while (running)
     {
+        status = 0;
         show_header();
         show_main_menu();
 
@@ -148,15 +152,16 @@ int main(int argc, char *argv[])
         {
             do
             {
-                status = EncodeVin(&vins[Id_init-1]);
+                status = EncodeVin(&vins[nvin], nvin);
                 if (!status)
                     printf("\n\nEncodage interrompu par l'utilisateur !\n\n");
                 else
                 {
-                    InsertionID(&vins[Id_init-1], index, nvin);
-                    Id_init++;
+                    InsertionID(&vins[nvin], index, nvin);
+                    printf("\n\t\t\t\t\t\tVin encode !\n");
+                    printf("\t\t\t\t\t\tId : %ld\n", (vins + nvin)->IdVin);
+                    printf("\t\t\t\t\t\tTotal vin : %d\n\n", nvin + 1);
                     nvin++;
-                    printf("\nVin encode !\n\n");
                 }
             }while (status);
         }
@@ -166,16 +171,28 @@ int main(int argc, char *argv[])
         }
         else if (menu_option == 3)
         {
-            printf("Entrez l'ID : ");
-            secureInput(id, sizeof(id));
-            
-            for (i = 0; i < 1000; i++)
+            do
             {
-                if (vins[i].IdVin == atoi(id))
+                status = 0;
+                printf("Entrez l'ID : ");
+                secureInput(id, sizeof(id));
+
+                for (i = 0; i < sizeof(id)-1; i++)
                 {
-                    AfficheVin(&vins[i], &index[i]);
+                if(id[i] != '\0' && !isdigit(id[i]))
+                    status = -1;
                 }
-            }
+                if (status == -1)
+                    printf("L'ID est mal formé !\n");
+                else
+                {
+                    i = AfficheVin(vins, nvin ,atoi(id));
+                    if (i == -1)
+                        printf("Aucun vin ne correspond à l'ID : %d\n", atoi(id));
+                }
+
+
+            }while (status == -1);
         }
         else if (menu_option == 99)
             running = 0;
@@ -247,14 +264,13 @@ short secureInput(char *str, int size_str)
 
 }
 
-short EncodeVin(struct Vin *vin)
+short EncodeVin(struct Vin *vin, int nvin)
 {
     assert(vin != NULL);
 
     int status = 0, color_choice, i, digit_check, date, c;
     char buffer[10];
-    vin->IdVin = Id_init;
-
+    vin->IdVin = ++nvin;
     printf("Producteur : ");
     status = secureInput(vin->producteur, sizeof(vin->producteur));
     if (status == 0)
@@ -362,18 +378,28 @@ short EncodeVin(struct Vin *vin)
     
 }
 
-void AfficheVin(struct Vin *vin, struct IndVin *index)
+short AfficheVin(struct Vin *vin, int nvin , int ID)
 {
-    printf("\n\nId : %ld\t",vin->IdVin);
-    printf("Producteur : %s\t", vin->producteur);
-    printf("Nom de cuvee : %s\t", vin->NomCuvee);
-    printf("Appelation : %s\t", vin->Appellation);
-    printf("Region : %s\t", vin->Region);
-    printf("Pays : %s\t", vin->Pays);
-    printf("Couleur : %s\t", vin->Couleur);
-    printf("Annee : %s\t", vin->Annee);
-    printf("Bio : %c\t", vin->Bio);
-    printf("Garde : %s\n\n", vin->Garde);
+    int i;
+
+    for (i = 0; i < nvin; i++)
+    {
+        if ((vin + i)->IdVin == ID)
+        {
+            printf("\n\nId : %ld\t",vin->IdVin);
+            printf("Producteur : %s\t", vin->producteur);
+            printf("Nom de cuvee : %s\t", vin->NomCuvee);
+            printf("Appelation : %s\t", vin->Appellation);
+            printf("Region : %s\t", vin->Region);
+            printf("Pays : %s\t", vin->Pays);
+            printf("Couleur : %s\t", vin->Couleur);
+            printf("Annee : %s\t", vin->Annee);
+            printf("Bio : %c\t", vin->Bio);
+            printf("Garde : %s\n\n", vin->Garde);
+            return 0;
+        }
+    }
+    return -1;
 }
 
 void InsertionID(struct Vin *vin, struct IndVin *index, int nb_vin)
