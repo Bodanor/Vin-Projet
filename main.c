@@ -86,7 +86,7 @@ void show_color_menu(void);
  * 
  * @param vin all infos about a bottle of wine
  * @return 0 : If input has been interrupted by the user.
- * @return 1 : If all data have been successfully encodede into the vin struct without beeing interrupted.
+ * @return 1 : If all data have been successfully encodedd into the vin struct without beeing interrupted.
  */
 
 short EncodeVin(struct Vin *vin);
@@ -109,16 +109,22 @@ short EncodeVin(struct Vin *vin);
 void AfficheVin(struct Vin *vin, struct IndVin *index);
 
 
+void show_all(struct Vin *vin, struct IndVin *index, int struct_size);
+
+void InsertionID(struct Vin *vin, struct IndVin *index, int nv_vin);
+
 int main(int argc, char *argv[])
 {
     struct Vin vins[1000];
     int nvin;   /* nombre de vins encodés */
     struct IndVin index[1000];  /* index */
-    int choice;
+    char choice[3];
     int running = 1;
-
+    int menu_option = 0;
     char id[3];
     int i, status;
+
+    nvin = 0;
 
     while (running)
     {
@@ -126,19 +132,39 @@ int main(int argc, char *argv[])
         show_main_menu();
 
         printf("Choix --> ");
-        scanf("%d%*c", &choice);    /* "*d" is used here in order to eat the newline from the return character. */
+        secureInput(choice, sizeof(choice));
 
-        if (choice == 1)
+        for (i = 0; i < sizeof(choice)-1; i++)
         {
-            status = EncodeVin(&vins[Id_init-1]);
-            if (!status)
-                printf("\n\nEncodage interrompu par l'utilisateur !\n\n");
+            if(choice[i] != '\0' && !isdigit(choice[i]))
+                status = -1;
         }
-        else if (choice == 1)
-            ;
-        else if (choice == 2)
-            ;
-        else if (choice == 3)
+        if (status == -1)
+            menu_option = 0;
+        else
+            menu_option = atoi(choice);
+
+        if (menu_option == 1)
+        {
+            do
+            {
+                status = EncodeVin(&vins[Id_init-1]);
+                if (!status)
+                    printf("\n\nEncodage interrompu par l'utilisateur !\n\n");
+                else
+                {
+                    InsertionID(&vins[Id_init-1], index, nvin);
+                    Id_init++;
+                    nvin++;
+                    printf("\nVin encode !\n\n");
+                }
+            }while (status);
+        }
+        else if (menu_option == 2)
+        {
+            show_all(vins, index, nvin);
+        }
+        else if (menu_option == 3)
         {
             printf("Entrez l'ID : ");
             secureInput(id, sizeof(id));
@@ -151,7 +177,7 @@ int main(int argc, char *argv[])
                 }
             }
         }
-        else if (choice == 99)
+        else if (menu_option == 99)
             running = 0;
         else
         {
@@ -331,7 +357,8 @@ short EncodeVin(struct Vin *vin)
         }
     }while (digit_check == 0);
 
-    Id_init++; // If User didn't unterrupt the encoding, then we increment the index.
+    // If User didn't unterrupt the encoding, then we increment the index.
+    return 1;
     
 }
 
@@ -347,4 +374,76 @@ void AfficheVin(struct Vin *vin, struct IndVin *index)
     printf("Annee : %s\t", vin->Annee);
     printf("Bio : %c\t", vin->Bio);
     printf("Garde : %s\n\n", vin->Garde);
+}
+
+void InsertionID(struct Vin *vin, struct IndVin *index, int nb_vin)
+{
+    int i;
+    i = nb_vin-1;
+    while(i>=0 && strcmp((((index+i)->Pays)),vin->Pays)>0)
+    {
+        strcpy(((index+i+1)->Pays),((index+i)->Pays));
+        strcpy(((index+i+1)->Annee),((index+i)->Annee));
+        strcpy(((index+i+1)->Producteur),((index+i)->Producteur));
+        strcpy (((index+i+1)->Appellation),((index+i)->Appellation));
+        strcpy (((index+i+1)->Region),((index+i)->Region));
+
+        ((index+i+1)->IdVin) = ((index+i)->IdVin);
+        i--;
+    }
+        while(i>=0&& strcmp((((index+i)->Region)),vin->Region)>0)
+    {
+        strcpy(((index+i+1)->Region),((index+i)->Region));
+        strcpy(((index+i+1)->Pays),((index+i)->Pays));
+        strcpy(((index+i+1)->Annee),((index+i)->Annee));
+        strcpy(((index+i+1)->Producteur),((index+i)->Producteur));
+        strcpy (((index+i+1)->Appellation),((index+i)->Appellation));
+        ((index+i+1)->IdVin) = ((index+i)->IdVin);
+        i--;
+    }
+        while(i>=0&& strcmp((((index+i)->Appellation)),vin->Appellation)>0)
+    {
+        strcpy(((index+i+1)->Appellation),((index+i)->Appellation));
+        strcpy(((index+i+1)->Pays),((index+i)->Pays));
+        strcpy(((index+i+1)->Annee),((index+i)->Annee));
+        strcpy(((index+i+1)->Producteur),((index+i)->Producteur));
+        ((index+i+1)->IdVin) = ((index+i)->IdVin);
+        i--;
+    }
+
+
+    ((index+i+1)->IdVin) = vin->IdVin;
+    strcpy(((index+i+1)->Annee),(vin->Annee));
+    strcpy(((index+i+1)->Producteur),(vin->producteur));
+    strcpy (((index+i+1)->Appellation),(vin->Appellation));
+    strcpy (((index+i+1)->Region),(vin->Region));
+    strcpy (((index+i+1)->Pays),(vin->Pays));
+}
+
+void show_all(struct Vin *vin, struct IndVin *index, int nb_vin)
+{
+    assert(vin != NULL && index != NULL);
+    int i;
+
+    if (nb_vin != 0)
+    {
+        for (i = 0; i < nb_vin; i++)
+        {
+            if ((index+i)->IdVin != 0)
+            {
+                printf("\n\nId : %ld\t",((vin+((index+i)->IdVin -1))->IdVin));
+                printf("Producteur : %s\t", ((vin+((index+i)->IdVin -1))->producteur));
+                printf("Nom de cuvee : %s\t", ((vin+((index+i)->IdVin -1))->NomCuvee));
+                printf("Appelation : %s\t", ((vin+((index+i)->IdVin -1))->Appellation));
+                printf("Region : %s\t", ((vin+((index+i)->IdVin -1))->Region));
+                printf("Pays : %s\t", ((vin+((index+i)->IdVin -1))->Pays));
+                printf("Couleur : %s\t", ((vin+((index+i)->IdVin -1))->Couleur));
+                printf("Annee : %s\t", ((vin+((index+i)->IdVin -1))->Annee));
+                printf("Bio : %c\t", ((vin+((index+i)->IdVin -1))->Bio));
+                printf("Garde : %s\n\n", ((vin+((index+i)->IdVin -1))->Garde));
+            }
+        }
+    }
+    else
+        printf("\nAucun vin n'a encore été encodé !\n");
 }
