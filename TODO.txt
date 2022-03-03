@@ -1,4 +1,0 @@
-1) Enlever la varibale globale ID_init et verifier si tout marche bien. Encode Belgique, Allemagne et albanie puis tout afficher
-2) Vérifier la 3ème option du menu qui peux etre bugee. Elle affiche 2 fois l'ID 1 ou alors, si on interomps l'encodage, l'ID_init est deja
-    incrementer ce qui fait que si on a encode 3 vin et qu'au 4ème on interrommps, si on demande a afficher l'ID 4, elle affiche quand meme quelque chose... 
-    C'est pas bon 

@@ -52,7 +52,6 @@ struct IndVin
 
 /**
  * 
- * @fn void show_header(void)
  * @brief Prints a nice Header on the terminal
  * 
  */
@@ -60,50 +59,44 @@ struct IndVin
 void show_header(void);
 
 /**
- * @brief Function that can be used to safely write data from the stdin file.
+ * @brief   Function that can be used to safely write data from the stdin file.
  * 
- * @param str char pointer to a valid memory location
- * @param size_str maximum size in bytes of the first valid parameter. 
- * @return 0 : if user has interrupted the input by hitting Enter at the beginning.
- * @return 1 : if the input has successfully been written to destination memory location. 
+ * @param str   char pointer to a valid memory location
+ * @param size_str  maximum size in bytes of the first valid parameter. 
+ * @return  0 : if user has interrupted the input by hitting Enter at the beginning.
+ * @return  1 : if the input has successfully been written to destination memory location. 
  */
 short secureInput(char *str, int size_str);
 
 /**
- * @brief Prints the main menu with the options available.
+ * @brief   Prints the main menu with the options available.
  * 
  */
 void show_main_menu(void);
 
 /**
- * @brief Prints all the possible colors for a bottle of wine in form of a menu.
- * 
+ * @brief   Prints all the possible colors for a bottle of wine in form of a menu.
+ *
  */
 void show_color_menu(void);
 /**
  * @brief encode a wine into a struct Vin.
  * 
- * @param vin all infos about a bottle of wine
- * @return 0 : If input has been interrupted by the user.
- * @return 1 : If all data have been successfully encodedd into the vin struct without beeing interrupted.
+ * @param vin   all infos about a bottle of wine
+ * @param nvin  how many wine have been encoded till now
+ * @return 0    : If input has been interrupted by the user.
+ * @return 1    : If all data have been successfully encodedd into the vin struct without beeing interrupted.
  */
 
 short EncodeVin(struct Vin *vin, int nvin);
 
-/**
- * @brief The main function where all the magic happens
- * 
- * @param argc Number of arguments passed when running the binary. (always 1 : path of the binary)
- * @param argv Array that contains the arguments passed to the running binary
- * @return int 
- */
 
 /**
  * @brief print all the fields of a given ID if it exists in the array of struct to the screen.
  * 
- * @param vin valid struct vin
- * @param nvin how many wine have been encoded till now
- * @param ID ID to look for in the array <vin>
+ * @param vin   valid struct vin
+ * @param nvin  how many wine have been encoded till now
+ * @param ID    ID to look for in the array <vin>
  * 
  * @return 0: if the ID has been found in the array <vin>
  * @return -1: If the ID doesn't exist. So the wine has not yet been created.
@@ -111,10 +104,23 @@ short EncodeVin(struct Vin *vin, int nvin);
 
 short AfficheVin(struct Vin *vin, int nvin, int ID);
 
+/**
+ * @brief Show all the encoded wine in the array <vin>
+ * 
+ * @param vin   valid struct vin
+ * @param index valid struct index, that contains all the encode sorted wine
+ * @param nvin  how many wine have been encoded till now
+ */
+void show_all(struct Vin *vin, struct IndVin *index, int nvin);
 
-void show_all(struct Vin *vin, struct IndVin *index, int struct_size);
-
-void InsertionID(struct Vin *vin, struct IndVin *index, int nv_vin);
+/**
+ * @brief Sort all the encoded wines in the array <vin> by country, region and appellation
+ * 
+ * @param vin   valid struct vin
+ * @param index valid struct index, that contains all the encode sorted wine
+ * @param nvin  how many wine have been encoded till now
+ */
+void InsertionIND(struct Vin *vin, struct IndVin *index, int nvin);
 
 int main(int argc, char *argv[])
 {
@@ -157,7 +163,7 @@ int main(int argc, char *argv[])
                     printf("\n\nEncodage interrompu par l'utilisateur !\n\n");
                 else
                 {
-                    InsertionID(&vins[nvin], index, nvin);
+                    InsertionIND(&vins[nvin], index, nvin);
                     printf("\n\t\t\t\t\t\tVin encode !\n");
                     printf("\t\t\t\t\t\tId : %ld\n", (vins + nvin)->IdVin);
                     printf("\t\t\t\t\t\tTotal vin : %d\n\n", nvin + 1);
@@ -188,7 +194,7 @@ int main(int argc, char *argv[])
                 {
                     i = AfficheVin(vins, nvin ,atoi(id));
                     if (i == -1)
-                        printf("Aucun vin ne correspond à l'ID : %d\n", atoi(id));
+                        printf("\nAucun vin ne correspond à l'ID : %d\n", atoi(id));
                 }
 
 
@@ -205,6 +211,11 @@ int main(int argc, char *argv[])
     return 0;
 
 }
+/********************************************/
+/*  INPUT : /                               */
+/*  PROCESS : Affiche l'en-tête du menu     */
+/*  OUTPUT : /                              */
+/********************************************/
 
 void show_header(void)
 {
@@ -226,6 +237,12 @@ void show_header(void)
 
 }
 
+/********************************************/
+/*  INPUT : /                               */
+/*  PROCESS : Affiche les options du menu   */
+/*  OUTPUT : /                              */
+/********************************************/
+
 void show_main_menu(void)
 {
     printf("1) Ajouter des vins\n");
@@ -233,6 +250,12 @@ void show_main_menu(void)
     printf("3) Afficher un vin spécifique\n\n");
     printf("99) Quitter\n\n"); 
 }
+
+/****************************************************************/
+/*  INPUT : /                                                   */
+/*  PROCESS : Affiche la liste des couleurs possible d'un vin   */
+/*  OUTPUT : /                                                  */
+/****************************************************************/
 
 void show_color_menu(void)
 {
@@ -243,7 +266,16 @@ void show_color_menu(void)
     }
     puts("\n\n");
 }
-
+/********************************************************************/
+/*  INPUT : pointeur de char :  adresse ou on veux stocker un input */
+/*          entier size_str : La taille max du pointeur de char     */
+/*  PROCESS : recupere un input charactere par charactere et permet */
+/*            De ne pas dépasser le buffer du pointeur de char.     */
+/*            Si la taille est dépassée, ce qui suite la taille     */
+/*            Max du buffer sera ignoré !                           */
+/*  OUTPUT : 0 si l'utilisateur à appuyer sur enter des le debut    */
+/*           1 Si l'Input à bien été stocker dans le pointeur       */
+/********************************************************************/
 short secureInput(char *str, int size_str)
 {
     int c, i = 0;
@@ -260,7 +292,14 @@ short secureInput(char *str, int size_str)
         return 0;
     else
         return 1;
-
+/****************************************************************************/
+/*  INPUT : pointeur de structure vin                                       */
+/*          entier nvin : nombre de vin déja encoder                        */
+/*  PROCESS : Permet de renseigner les différents                           */
+/*            Champs de la structure vin                                    */
+/*  OUTPUT :  0 : Si l'utilisateur a appuyez sur ENTER pour revenir au menu */
+/*              1 : Si l'Input à bien été stocker dans le pointeur          */
+/****************************************************************************/
 
 }
 
@@ -378,6 +417,17 @@ short EncodeVin(struct Vin *vin, int nvin)
     
 }
 
+/****************************************************************************/
+/*  INPUT : pointeur de structure vin                                       */
+/*          entier nvin : nombre de vin déja encoder                        */
+/*          entier ID : l'ID du vin qui doit être afficher                  */
+/*  PROCESS : Permet de chercher si l'ID d'un vin existe dans la structure  */
+/*            de vin et d'afficher les differents champs de ce dernier      */
+/*  OUTPUT :  0 : Si l'ID à été trouver                                     */
+/*           -1 : Si l'ID n'a pas été trouver                               */
+/****************************************************************************/
+
+
 short AfficheVin(struct Vin *vin, int nvin , int ID)
 {
     int i;
@@ -386,15 +436,15 @@ short AfficheVin(struct Vin *vin, int nvin , int ID)
     {
         if ((vin + i)->IdVin == ID)
         {
-            printf("\n\nId : %ld\t",vin->IdVin);
-            printf("Producteur : %s\t", vin->producteur);
-            printf("Nom de cuvee : %s\t", vin->NomCuvee);
-            printf("Appelation : %s\t", vin->Appellation);
-            printf("Region : %s\t", vin->Region);
-            printf("Pays : %s\t", vin->Pays);
-            printf("Couleur : %s\t", vin->Couleur);
-            printf("Annee : %s\t", vin->Annee);
-            printf("Bio : %c\t", vin->Bio);
+            printf("\nId : %ld\n",vin->IdVin);
+            printf("Producteur : %s\n", vin->producteur);
+            printf("Nom de cuvee : %s\n", vin->NomCuvee);
+            printf("Appelation : %s\n", vin->Appellation);
+            printf("Region : %s\n", vin->Region);
+            printf("Pays : %s\n", vin->Pays);
+            printf("Couleur : %s\n", vin->Couleur);
+            printf("Annee : %s\n", vin->Annee);
+            printf("Bio : %c\n", vin->Bio);
             printf("Garde : %s\n\n", vin->Garde);
             return 0;
         }
@@ -402,10 +452,19 @@ short AfficheVin(struct Vin *vin, int nvin , int ID)
     return -1;
 }
 
-void InsertionID(struct Vin *vin, struct IndVin *index, int nb_vin)
+/********************************************************************************/
+/*  INPUT : pointeur de structure vin                                           */
+/*          pointeur de structure index                                         */
+/*          entier nvin : nombre de vin déja encoder                            */
+/*  PROCESS : Permet d'inserer un element de type struct IndVin de manière trié */
+/*  OUTPUT : /                                                                  */
+/********************************************************************************/
+
+
+void InsertionIND(struct Vin *vin, struct IndVin *index, int nvin)
 {
     int i;
-    i = nb_vin-1;
+    i = nvin-1;
     while(i>=0 && strcmp((((index+i)->Pays)),vin->Pays)>0)
     {
         strcpy(((index+i+1)->Pays),((index+i)->Pays));
@@ -446,30 +505,41 @@ void InsertionID(struct Vin *vin, struct IndVin *index, int nb_vin)
     strcpy (((index+i+1)->Pays),(vin->Pays));
 }
 
-void show_all(struct Vin *vin, struct IndVin *index, int nb_vin)
+/****************************************************************************/
+/*  INPUT : pointeur de structure vin                                       */
+/*          pointeur de structure index                                     */
+/*          entier nvin : nombre de vin déja encoder                        */
+/*  PROCESS : Permet d'afficher à l'ecran tout les vins déja encoder        */
+/*  OUTPUT : /                                                              */
+/****************************************************************************/
+
+
+void show_all(struct Vin *vin, struct IndVin *index, int nvin)
 {
     assert(vin != NULL && index != NULL);
-    int i;
+    int i, x, nb_char ;
 
-    if (nb_vin != 0)
+    if (nvin != 0)
     {
-        for (i = 0; i < nb_vin; i++)
+        for (i = 0; i < nvin; i++)
         {
+            nb_char = 0;
             if ((index+i)->IdVin != 0)
             {
-                printf("\n\nId : %ld\t",((vin+((index+i)->IdVin -1))->IdVin));
-                printf("Producteur : %s\t", ((vin+((index+i)->IdVin -1))->producteur));
-                printf("Nom de cuvee : %s\t", ((vin+((index+i)->IdVin -1))->NomCuvee));
-                printf("Appelation : %s\t", ((vin+((index+i)->IdVin -1))->Appellation));
-                printf("Region : %s\t", ((vin+((index+i)->IdVin -1))->Region));
-                printf("Pays : %s\t", ((vin+((index+i)->IdVin -1))->Pays));
-                printf("Couleur : %s\t", ((vin+((index+i)->IdVin -1))->Couleur));
-                printf("Annee : %s\t", ((vin+((index+i)->IdVin -1))->Annee));
-                printf("Bio : %c\t", ((vin+((index+i)->IdVin -1))->Bio));
+                printf("\nID : %ld\n",((vin+((index+i)->IdVin -1))->IdVin));
+                printf("Producteur : %s\n", ((vin+((index+i)->IdVin -1))->producteur));
+                printf("Nom de cuvee : %s\n", ((vin+((index+i)->IdVin -1))->NomCuvee));
+                printf("Appellation : %s\n", ((vin+((index+i)->IdVin -1))->Appellation));
+                printf("Region : %s\n", ((vin+((index+i)->IdVin -1))->Region));
+                printf("Pays : %s\n", ((vin+((index+i)->IdVin -1))->Pays));
+                printf("Couleur : %s\n", ((vin+((index+i)->IdVin -1))->Couleur));
+                printf("Annee : %s\n", ((vin+((index+i)->IdVin -1))->Annee));
+                printf("Bio : %c\n", ((vin+((index+i)->IdVin -1))->Bio));
                 printf("Garde : %s\n\n", ((vin+((index+i)->IdVin -1))->Garde));
             }
         }
+        printf("\n\n");
     }
     else
-        printf("\nAucun vin n'a encore été encodé !\n");
+        printf("\n\nAucun vin n'a encore été encodé !\n\n");
 }
