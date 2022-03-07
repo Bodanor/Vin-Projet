@@ -128,27 +128,37 @@ int main(int argc, char* argv[])
     int nvin;   /* nombre de vins encodés */
     struct IndVin index[1000];  /* index */
     char choice[3];
-    int running = 1;
     int menu_option = 0;
     char id[3];
     int i, status;
 
     nvin = 0;
 
-    while (running)
+    do
     {
-        status = 0;
-        show_header();
-        show_main_menu();
-
-        printf("Choix --> ");
-        secureInput(choice, sizeof(choice));
-
-        for (i = 0; i < sizeof(choice) - 1; i++)
+        do
         {
-            if (choice[i] != '\0' && !isdigit(choice[i]))
-                status = -1;
-        }
+            show_header();
+            show_main_menu();
+
+            status = 0;
+            printf("Choix --> ");
+            secureInput(choice, sizeof(choice));
+
+            i = 0;
+            while (status != -1 && choice[i] != '\0')
+            {
+                if (choice[i] != '\0' && !isdigit(choice[i]))
+                {
+                    printf("\nChoix mal formé !\n");
+                    status = -1;
+                    i = 0;
+                }
+                else
+                    i++;
+            }
+        }while (status == -1);
+
         if (status == -1)
             menu_option = 0;
         else
@@ -183,30 +193,32 @@ int main(int argc, char* argv[])
                 printf("Entrez l'ID : ");
                 secureInput(id, sizeof(id));
 
-                for (i = 0; i < sizeof(id) - 1; i++)
+                i = 0;
+                status = 0;
+                while (status != -1 && id[i] != '\0')
                 {
                     if (id[i] != '\0' && !isdigit(id[i]))
+                    {   
+                        printf("L'ID est mal forme !\n");
+                        i = 0;
                         status = -1;
+                    }
+                    else
+                        i++;
                 }
-                if (status == -1)
-                    printf("L'ID est mal forme !\n");
-                else
-                {
-                    i = AfficheVin(vins, nvin, atoi(id));
-                    if (i == -1)
-                        printf("\nAucun vin ne correspond a l'ID : %d\n", atoi(id));
-                }
-
 
             } while (status == -1);
+
+            i = AfficheVin(vins, nvin, atoi(id));
+            if (i == -1)
+                printf("\nAucun vin ne correspond a l'ID : %d\n", atoi(id));
         }
-        else if (menu_option == 99)
-            running = 0;
         else
         {
-            printf("\nChoix invalide !\n");
+            if (menu_option != 99)
+                printf("\nChoix invalide !\n");
         }
-    }
+    }while (menu_option != 99);
 
     return 0;
 
@@ -290,8 +302,7 @@ short secureInput(char* str, int size_str)
 
     if (i == 0)
         return 0;
-    else
-        return 1;
+    return 1;
     /****************************************************************************/
     /*  INPUT : pointeur de structure vin                                       */
     /*          entier nvin : nombre de vin déja encoder                        */
