@@ -122,6 +122,9 @@ void show_all(struct Vin* vin, struct IndVin* index, int nvin);
  */
 void InsertionIND(struct Vin* vin, struct IndVin* index, int nvin);
 
+
+short convertToINT(char *str, int str_length, int *to_convert);
+
 int main(int argc, char* argv[])
 {
     struct Vin vins[1000];
@@ -318,7 +321,7 @@ short EncodeVin(struct Vin* vin, int nvin)
 {
     assert(vin != NULL);
 
-    int status = 0, color_choice, i, digit_check, date;
+    int status = 0, color_choice, i, digit_check, date, garde_check, garde;
     char buffer[10];
     vin->IdVin = ++nvin;
     printf("Producteur : ");
@@ -342,48 +345,32 @@ short EncodeVin(struct Vin* vin, int nvin)
 
     do
     {
-        digit_check = 1;
-
         printf("Choissisez la couleur : \n\n");
         show_color_menu();
         printf("Couleur : ");
         status = secureInput(buffer, sizeof(buffer));
-        if (status == 0)
+        if (!status)
             return 0;
-        for (i = 0; i < 1; i++)
-        {
-            if (!isdigit(buffer[i]))
-                digit_check = 0;
-        }
+        if (convertToINT(buffer, 1, &color_choice) == -1 || (color_choice < 1 || color_choice > 7))
+            printf("\nChoix mal formé ou inexistant!\n");
 
-        color_choice = atoi(buffer);
+    } while (color_choice < 1 || color_choice > 7);
 
-        if (digit_check == 0 || (color_choice < 1 || color_choice > 7))
-            printf("\nChoix Invalide !\n");
-
-    } while (digit_check == 0 || (color_choice < 1 || color_choice > 7));
     strcpy(vin->Couleur, couleur_types[color_choice - 1]);
 
     do
     {
-        digit_check = 1;
-
         printf("Entrez la date (a partir de 1800): ");
         status = secureInput(vin->Annee, sizeof(vin->Annee));
-        if (status == 0)
+        if (!status)
             return 0;
-
-        for (i = 0; i < 4; i++)
+        if (convertToINT(vin->Annee, 4, &date) == -1  || date < 1800)
         {
-            if (!isdigit(vin->Annee[i]))
-                digit_check = 0;
+            printf("\nDate mal formée !\n");
+            date = 0;
         }
 
-        date = atoi(vin->Annee);
-        if (digit_check == 0 || date < 1800)
-            printf("\nDate Invalide !\n");
-
-    } while (digit_check == 0 || date < 1800);
+    } while (date < 1800);
 
     do
     {
@@ -391,34 +378,28 @@ short EncodeVin(struct Vin* vin, int nvin)
         status = secureInput(buffer, sizeof(buffer));
         if (status == 0)
             return 0;
-
-        if (*buffer == 'o' || *buffer == 'O')
-            vin->Bio = 'T';
-        else if (*buffer == 'n' || *buffer == 'N')
-            vin->Bio = 'F';
-
     } while (*buffer != 'O' && *buffer != 'o' && *buffer != 'N' && *buffer != 'n');
 
+    vin->Bio = tolower((int)*buffer);
     do
     {
-        digit_check = 1;
-
+        garde_check = 0;
         printf("Entrez la garde : ");
         status = secureInput(vin->Garde, sizeof(vin->Garde));
         if (!status)
             return 0;
-        for (i = 0; i < sizeof(vin->Garde) - 1; i++)
-        {
-            if (!isdigit(vin->Garde[i]))
-                digit_check = 0;
 
-        }
-        if (!digit_check || strlen(vin->Garde) != 4)
+        if (convertToINT(vin->Garde, 4, &garde) == -1)
         {
             printf("\nGarde Invalide !\n");
-            digit_check = 0;
+            garde_check = -1;
         }
-    } while (digit_check == 0);
+        else
+        {
+            if (strlen(vin->Garde) != 4)
+                garde_check = -1;
+        }
+    } while (garde_check == -1);
 
     // If User didn't unterrupt the encoding, then we increment the index.
     return 1;
@@ -550,4 +531,16 @@ void show_all(struct Vin* vin, struct IndVin* index, int nvin)
     }
     else
         printf("\n\nAucun vin n'a encore ete encode !\n\n");
+}
+
+short convertToINT(char *str, int str_length, int *to_convert)
+{
+    int i;
+    for (i = 0; i < str_length ; i++)
+    {
+        if (!isdigit(*(str + i)))
+            return -1;
+    }
+    *to_convert = atoi(str);
+    return 0;
 }
