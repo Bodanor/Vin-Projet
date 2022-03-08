@@ -102,16 +102,8 @@ short EncodeVin(struct Vin* vin, int nvin);
  * @return -1: If the ID doesn't exist. So the wine has not yet been created.
  */
 
-short AfficheVin(struct Vin* vin, int nvin, int ID);
+void AfficheVin(struct Vin* vin);
 
-/**
- * @brief Show all the encoded wine in the array <vin>
- *
- * @param vin   valid struct vin
- * @param index valid struct index, that contains all the encode sorted wine
- * @param nvin  how many wine have been encoded till now
- */
-void show_all(struct Vin* vin, struct IndVin* index, int nvin);
 
 /**
  * @brief Sort all the encoded wines in the array <vin> by country, region and appellation
@@ -125,12 +117,15 @@ void InsertionIND(struct Vin* vin, struct IndVin* index, int nvin);
 
 short convertToINT(char *str, int str_length, int *to_convert);
 
+void RechercheAppellation(struct Vin *vin, int nvin, char *Appellation);
+void RechercheMillesime(struct Vin *vin, int nvin, char *Millesime);
+
 int main(int argc, char* argv[])
 {
     struct Vin vins[1000];
     int nvin;   /* nombre de vins encodés */
     struct IndVin index[1000];  /* index */
-    char choice[3];
+    char choice[3], appellation[40], millesime[5];
     int menu_option = 0;
     char id[3];
     int i, status;
@@ -186,7 +181,18 @@ int main(int argc, char* argv[])
         }
         else if (menu_option == 2)
         {
-            show_all(vins, index, nvin);
+            int i = 0;
+            char c = '\0';
+            printf("Appuyez sur enter pour afficher le vin suivant !\n");
+            while(i < nvin && c == '\0')
+            {
+                AfficheVin((vins+((index+i)->IdVin -1)));
+                secureInput(choice, sizeof(choice));
+                c = *choice;    // Essaye de contourner ca.
+                i++;
+            }
+
+
         }
         else if (menu_option == 3)
         {
@@ -212,9 +218,29 @@ int main(int argc, char* argv[])
 
             } while (status == -1);
 
-            i = AfficheVin(vins, nvin, atoi(id));
-            if (i == -1)
-                printf("\nAucun vin ne correspond a l'ID : %d\n", atoi(id));
+            AfficheVin(vins);
+        }
+        else if (menu_option == 4)
+        {
+            if (nvin > 0)
+            {
+                printf("Entrez l'appellation a rechercher : ");
+                secureInput(appellation, sizeof(appellation));
+                RechercheAppellation(vins, nvin, appellation);
+            }
+            else
+                printf("\n\nAucun vin n'a encore ete encoder !\n\n");
+        }
+        else if (menu_option == 5)
+        {
+            if (nvin > 0)
+            {
+                printf("Entrez le millesime a rechercher : ");
+                secureInput(millesime, sizeof(millesime));
+                RechercheMillesime(vins, nvin, millesime);
+            }
+            else
+                printf("\n\nAucun vin n'a encore ete encoder !\n\n");
         }
         else
         {
@@ -262,7 +288,9 @@ void show_main_menu(void)
 {
     printf("1) Ajouter des vins\n");
     printf("2) Afficher tout les vins\n");
-    printf("3) Afficher un vin specifique\n\n");
+    printf("3) Afficher un vin specifique\n");
+    printf("4) Rechercher par Appellation\n");
+    printf("5) Rechercher par Millesime\n\n");
     printf("99) Quitter\n\n");
 }
 
@@ -385,23 +413,17 @@ short EncodeVin(struct Vin* vin, int nvin)
     {
         garde_check = 0;
         printf("Entrez la garde : ");
-        status = secureInput(vin->Garde, sizeof(vin->Garde));
+        status = secureInput(vin->Garde, sizeof(vin->Garde) + 1);
         if (!status)
             return 0;
 
-        if (convertToINT(vin->Garde, 4, &garde) == -1)
+        if (convertToINT(vin->Garde, 4, &garde) == -1 || (*(vin->Garde + 5) == '\0') && (strlen(vin->Garde) != 4))
         {
             printf("\nGarde Invalide !\n");
             garde_check = -1;
         }
-        else
-        {
-            if (strlen(vin->Garde) != 4)
-                garde_check = -1;
-        }
     } while (garde_check == -1);
-
-    // If User didn't unterrupt the encoding, then we increment the index.
+    
     return 1;
 
 }
@@ -417,28 +439,18 @@ short EncodeVin(struct Vin* vin, int nvin)
 /****************************************************************************/
 
 
-short AfficheVin(struct Vin* vin, int nvin, int ID)
+void AfficheVin(struct Vin* vin)
 {
-    int i;
-
-    for (i = 0; i < nvin; i++)
-    {
-        if ((vin + i)->IdVin == ID)
-        {
-            printf("\nId : %ld\n", vin->IdVin);
-            printf("Producteur : %s\n", vin->producteur);
-            printf("Nom de cuvee : %s\n", vin->NomCuvee);
-            printf("Appelation : %s\n", vin->Appellation);
-            printf("Region : %s\n", vin->Region);
-            printf("Pays : %s\n", vin->Pays);
-            printf("Couleur : %s\n", vin->Couleur);
-            printf("Annee : %s\n", vin->Annee);
-            printf("Bio : %c\n", vin->Bio);
-            printf("Garde : %s\n\n", vin->Garde);
-            return 0;
-        }
-    }
-    return -1;
+    printf("\nId : %ld\n", vin->IdVin);
+    printf("Producteur : %s\n", vin->producteur);
+    printf("Nom de cuvee : %s\n", vin->NomCuvee);
+    printf("Appelation : %s\n", vin->Appellation);
+    printf("Region : %s\n", vin->Region);
+    printf("Pays : %s\n", vin->Pays);
+    printf("Couleur : %s\n", vin->Couleur);
+    printf("Annee : %s\n", vin->Annee);
+    printf("Bio : %c\n", vin->Bio);
+    printf("Garde : %s\n\n", vin->Garde);
 }
 
 /********************************************************************************/
@@ -456,32 +468,17 @@ void InsertionIND(struct Vin* vin, struct IndVin* index, int nvin)
     i = nvin - 1;
     while (i >= 0 && strcmp((((index + i)->Pays)), vin->Pays) > 0)
     {
-        strcpy(((index + i + 1)->Pays), ((index + i)->Pays));
-        strcpy(((index + i + 1)->Annee), ((index + i)->Annee));
-        strcpy(((index + i + 1)->Producteur), ((index + i)->Producteur));
-        strcpy(((index + i + 1)->Appellation), ((index + i)->Appellation));
-        strcpy(((index + i + 1)->Region), ((index + i)->Region));
-
-        ((index + i + 1)->IdVin) = ((index + i)->IdVin);
+        *(index + i + 1) = *(index + i);
         i--;
     }
-    while (i >= 0 && strcmp((((index + i)->Region)), vin->Region) > 0)
+    while (i >= 0 && strcmp((((index + i)->Region)), vin->Region) > 0 && strcmp((index + i)->Pays, vin->Pays) == 0)
     {
-        strcpy(((index + i + 1)->Region), ((index + i)->Region));
-        strcpy(((index + i + 1)->Pays), ((index + i)->Pays));
-        strcpy(((index + i + 1)->Annee), ((index + i)->Annee));
-        strcpy(((index + i + 1)->Producteur), ((index + i)->Producteur));
-        strcpy(((index + i + 1)->Appellation), ((index + i)->Appellation));
-        ((index + i + 1)->IdVin) = ((index + i)->IdVin);
+        *(index + i + 1) = *(index + i);
         i--;
     }
-    while (i >= 0 && strcmp((((index + i)->Appellation)), vin->Appellation) > 0)
+    while (i >= 0 && strcmp((((index + i)->Appellation)), vin->Appellation) > 0 && strcmp((index + i)->Pays, vin->Pays) == 0 && strcmp((index + i)->Region, vin->Region) == 0)
     {
-        strcpy(((index + i + 1)->Appellation), ((index + i)->Appellation));
-        strcpy(((index + i + 1)->Pays), ((index + i)->Pays));
-        strcpy(((index + i + 1)->Annee), ((index + i)->Annee));
-        strcpy(((index + i + 1)->Producteur), ((index + i)->Producteur));
-        ((index + i + 1)->IdVin) = ((index + i)->IdVin);
+       *(index + i + 1) = *(index + i);
         i--;
     }
 
@@ -494,44 +491,7 @@ void InsertionIND(struct Vin* vin, struct IndVin* index, int nvin)
     strcpy(((index + i + 1)->Pays), (vin->Pays));
 }
 
-/****************************************************************************/
-/*  INPUT : pointeur de structure vin                                       */
-/*          pointeur de structure index                                     */
-/*          entier nvin : nombre de vin déja encoder                        */
-/*  PROCESS : Permet d'afficher à l'ecran tout les vins déja encoder de     */
-/*              manière triée                                               */
-/*  OUTPUT : /                                                              */
-/****************************************************************************/
 
-
-void show_all(struct Vin* vin, struct IndVin* index, int nvin)
-{
-    assert(vin != NULL && index != NULL);
-    int i;
-
-    if (nvin != 0)
-    {
-        for (i = 0; i < nvin; i++)
-        {
-            if ((index + i)->IdVin != 0)
-            {
-                printf("\nID : %ld\n", ((vin + ((index + i)->IdVin - 1))->IdVin));
-                printf("Producteur : %s\n", ((vin + ((index + i)->IdVin - 1))->producteur));
-                printf("Nom de cuvee : %s\n", ((vin + ((index + i)->IdVin - 1))->NomCuvee));
-                printf("Appellation : %s\n", ((vin + ((index + i)->IdVin - 1))->Appellation));
-                printf("Region : %s\n", ((vin + ((index + i)->IdVin - 1))->Region));
-                printf("Pays : %s\n", ((vin + ((index + i)->IdVin - 1))->Pays));
-                printf("Couleur : %s\n", ((vin + ((index + i)->IdVin - 1))->Couleur));
-                printf("Annee : %s\n", ((vin + ((index + i)->IdVin - 1))->Annee));
-                printf("Bio : %c\n", ((vin + ((index + i)->IdVin - 1))->Bio));
-                printf("Garde : %s\n\n", ((vin + ((index + i)->IdVin - 1))->Garde));
-            }
-        }
-        printf("\n\n");
-    }
-    else
-        printf("\n\nAucun vin n'a encore ete encode !\n\n");
-}
 
 short convertToINT(char *str, int str_length, int *to_convert)
 {
@@ -543,4 +503,27 @@ short convertToINT(char *str, int str_length, int *to_convert)
     }
     *to_convert = atoi(str);
     return 0;
+}
+void RechercheAppellation(struct Vin *vin, int nvin, char *Appellation)
+{
+    int i;
+    for (i = 0; i < nvin; i++)
+    {
+        if (strcmp((vin+i)->Appellation, Appellation) == 0)
+        {
+            AfficheVin(vin+i);
+        }
+    }
+}
+
+void RechercheMillesime(struct Vin *vin, int nvin, char *Millesime)
+{
+    int i;
+    for (i = 0; i < nvin; i++)
+    {
+        if (strcmp((vin+i)->Annee, Millesime) == 0)
+        {
+            AfficheVin(vin+i);
+        }
+    }
 }
