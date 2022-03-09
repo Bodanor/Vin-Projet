@@ -190,14 +190,19 @@ int main(int argc, char* argv[])
         {
             int i = 0;
             char c = '\0';
-            printf("Appuyez sur enter pour afficher le vin suivant !\n");
-            while(i < nvin && c == '\0')
+            if (nvin > 0)
             {
-                AfficheVin((vins+((index+i)->IdVin -1)));
-                secureInput(choice, sizeof(choice));
-                c = *choice;    // Essaye de contourner ca.
-                i++;
+                printf("Appuyez sur enter pour afficher le vin suivant !\n");
+                while(i < nvin && c == '\0')
+                {
+                    AfficheVin((vins+((index+i)->IdVin -1)));
+                    secureInput(choice, sizeof(choice));
+                    c = *choice;    // Essaye de contourner ca.
+                    i++;
+                }
             }
+            else
+                printf("\n\nAucun vin n'a encore ete encoder !\n\n");
 
 
         }
@@ -457,7 +462,7 @@ void AfficheVin(struct Vin* vin)
     printf("Couleur : %s\n", vin->Couleur);
     printf("Annee : %s\n", vin->Annee);
     printf("Bio : %c\n", vin->Bio);
-    printf("Garde : %s\n\n", vin->Garde);
+    printf("Garde : %.2s a %s ans\n\n", vin->Garde, vin->Garde + 2);
 }
 
 /********************************************************************************/
