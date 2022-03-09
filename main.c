@@ -367,7 +367,7 @@ short EncodeVin(struct Vin* vin, int nvin)
     status = secureInput(vin->producteur, sizeof(vin->producteur));
     if (status == 0)
         return 0;
-    printf("nom de cuvee : ");
+    printf("Nom de cuvee : ");
     status = secureInput(vin->NomCuvee, sizeof(vin->NomCuvee));
     if (status == 0)
         return 0;
