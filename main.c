@@ -166,9 +166,9 @@ int main(int argc, char* argv[])
             while (nvin < 1000 && EncodeVin(&vins[nvin], nvin))
             {
                 
-                if (i = RechercheExistant(vins, index, nvin, &vins[nvin]))
+                if ((idExistant = RechercheExistant(vins, index, nvin, &vins[nvin])))
                 {
-                    printf("\n\nCe vin est deja encoder avec comme ID : %ld!\n\n", i);
+                    printf("\n\nCe vin est deja encoder avec comme ID : %ld!\n\n", idExistant);
                 }
                 else
                 {
@@ -360,7 +360,7 @@ short secureInput(char* str, int size_str)
 short EncodeVin(struct Vin* vin, int nvin)
 {
 
-    int status = 0, color_choice, i, digit_check, date, garde_check, garde;
+    int status = 0, color_choice, date, garde_check, garde;
     char buffer[10];
     vin->IdVin = ++nvin;
     printf("Producteur : ");
@@ -428,7 +428,7 @@ short EncodeVin(struct Vin* vin, int nvin)
         if (!status)
             return 0;
 
-        if (convertToINT(vin->Garde, 4, &garde) == -1 || (*(vin->Garde + 5) == '\0') && (strlen(vin->Garde) != 4))
+        if (convertToINT(vin->Garde, 4, &garde) == -1 || ((*(vin->Garde + 4) != '\0') && (strlen(vin->Garde) != 4)))
         {
             printf("\nGarde Invalide !\n");
             garde_check = -1;
@@ -547,7 +547,7 @@ long RechercheExistant(struct Vin *vin, struct IndVin *index, int nvin, struct V
     long found = 0;
     for (i = 0;i < nvin; i++)
     {
-        if (strcmp((vin+((index + i)->IdVin-1))->Annee, vinrecherche->Annee) == 0);
+        if (strcmp((vin+((index + i)->IdVin-1))->Annee, vinrecherche->Annee) == 0)
         {
             if (strcmp((vin+((index + i)->IdVin-1))->producteur, vinrecherche->producteur) == 0)
                 if (strcmp((vin+((index + i)->IdVin-1))->Couleur, vinrecherche->Couleur) == 0)
