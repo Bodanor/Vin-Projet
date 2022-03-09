@@ -146,7 +146,7 @@ int main(int argc, char* argv[])
             {
                 if (choice[i] != '\0' && !isdigit(choice[i]))
                 {
-                    printf("\nChoix mal formé !\n");
+                    printf("\nChoix mal forme !\n");
                     status = -1;
                     i = 0;
                 }
@@ -168,7 +168,7 @@ int main(int argc, char* argv[])
                 
                 if (i = RechercheExistant(vins, index, nvin, &vins[nvin]))
                 {
-                    printf("\n\nCe vin est déja encoder avec comme ID : %ld!\n\n", i);
+                    printf("\n\nCe vin est deja encoder avec comme ID : %ld!\n\n", i);
                 }
                 else
                 {
@@ -391,7 +391,7 @@ short EncodeVin(struct Vin* vin, int nvin)
         if (!status)
             return 0;
         if (convertToINT(buffer, 1, &color_choice) == -1 || (color_choice < 1 || color_choice > 7))
-            printf("\nChoix mal formé ou inexistant!\n");
+            printf("\nChoix mal forme ou inexistant!\n");
 
     } while (color_choice < 1 || color_choice > 7);
 
@@ -405,7 +405,7 @@ short EncodeVin(struct Vin* vin, int nvin)
             return 0;
         if (convertToINT(vin->Annee, 4, &date) == -1  || date < 1800)
         {
-            printf("\nDate mal formée !\n");
+            printf("\nDate mal formee !\n");
             date = 0;
         }
 
