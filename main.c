@@ -10,7 +10,6 @@
  */
 
 #include <stdio.h>
-#include <assert.h>
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
@@ -122,7 +121,7 @@ void RechercheMillesime(struct Vin *vin, int nvin, char *Millesime);
 
 int main(int argc, char* argv[])
 {
-    struct Vin vins[1000];
+    struct Vin vins[2];
     int nvin;   /* nombre de vins encodés */
     struct IndVin index[1000];  /* index */
     char choice[3], appellation[40], millesime[5];
@@ -164,20 +163,21 @@ int main(int argc, char* argv[])
 
         if (menu_option == 1)
         {
-            do
+
+            while (nvin < 1000 && EncodeVin(&vins[nvin], nvin))
             {
-                status = EncodeVin(&vins[nvin], nvin);
-                if (!status)
-                    printf("\n\nEncodage interrompu par l'utilisateur !\n\n");
-                else
-                {
-                    InsertionIND(&vins[nvin], index, nvin);
-                    printf("\n\t\t\t\t\t\tVin encode !\n");
-                    printf("\t\t\t\t\t\tId : %ld\n", (vins + nvin)->IdVin);
-                    printf("\t\t\t\t\t\tTotal vin : %d\n\n", nvin + 1);
-                    nvin++;
-                }
-            } while (status);
+                InsertionIND(&vins[nvin], index, nvin);
+                printf("\n\t\t\t\t\t\tVin encode !\n");
+                printf("\t\t\t\t\t\tId : %ld\n", (vins + nvin)->IdVin);
+                printf("\t\t\t\t\t\tTotal vin : %d\n\n", nvin + 1);
+                nvin++;
+            }
+            if (nvin == 1000)
+            {
+                printf("\n\nLa taille maximum du tableau vin a ete atteinte !\n\n");
+            }
+            else
+                printf("\n\nEncodage interrompu par l'utilisateur !\n\n");
         }
         else if (menu_option == 2)
         {
@@ -347,7 +347,6 @@ short secureInput(char* str, int size_str)
 
 short EncodeVin(struct Vin* vin, int nvin)
 {
-    assert(vin != NULL);
 
     int status = 0, color_choice, i, digit_check, date, garde_check, garde;
     char buffer[10];
