@@ -118,16 +118,15 @@ short convertToINT(char *str, int str_length, int *to_convert);
 
 void RechercheAppellation(struct Vin *vin, int nvin, char *Appellation);
 void RechercheMillesime(struct Vin *vin, int nvin, char *Millesime);
-
+long RechercheExistant(struct Vin *vin, struct IndVin *index, int nvin, struct Vin *vinrecherche);
 int main(int argc, char* argv[])
 {
     struct Vin vins[2];
     int nvin;   /* nombre de vins encodés */
     struct IndVin index[1000];  /* index */
-    char choice[3], appellation[40], millesime[5];
-    int menu_option = 0;
-    char id[3];
-    int i, status;
+    char choice[3], appellation[40], millesime[5], id[3];
+    int i, status, menu_option = 0;
+    long idExistant;
 
     nvin = 0;
 
@@ -166,11 +165,19 @@ int main(int argc, char* argv[])
 
             while (nvin < 1000 && EncodeVin(&vins[nvin], nvin))
             {
-                InsertionIND(&vins[nvin], index, nvin);
-                printf("\n\t\t\t\t\t\tVin encode !\n");
-                printf("\t\t\t\t\t\tId : %ld\n", (vins + nvin)->IdVin);
-                printf("\t\t\t\t\t\tTotal vin : %d\n\n", nvin + 1);
-                nvin++;
+                
+                if (i = RechercheExistant(vins, index, nvin, &vins[nvin]))
+                {
+                    printf("\n\nCe vin est déja encoder avec comme ID : %ld!\n\n", i);
+                }
+                else
+                {
+                    InsertionIND(&vins[nvin], index, nvin);
+                    printf("\n\t\t\t\t\t\tVin encode !\n");
+                    printf("\t\t\t\t\t\tId : %ld\n", (vins + nvin)->IdVin);
+                    printf("\t\t\t\t\t\tTotal vin : %d\n\n", nvin + 1);
+                    nvin++;
+                }
             }
             if (nvin == 1000)
             {
@@ -423,6 +430,7 @@ short EncodeVin(struct Vin* vin, int nvin)
         }
     } while (garde_check == -1);
     
+
     return 1;
 
 }
@@ -525,4 +533,26 @@ void RechercheMillesime(struct Vin *vin, int nvin, char *Millesime)
             AfficheVin(vin+i);
         }
     }
+}
+
+long RechercheExistant(struct Vin *vin, struct IndVin *index, int nvin, struct Vin *vinrecherche)
+{
+    int i;
+
+    long found = 0;
+    for (i = 0;i < nvin; i++)
+    {
+        if (strcmp((vin+((index + i)->IdVin-1))->Annee, vinrecherche->Annee) == 0);
+        {
+            if (strcmp((vin+((index + i)->IdVin-1))->producteur, vinrecherche->producteur) == 0)
+                if (strcmp((vin+((index + i)->IdVin-1))->Couleur, vinrecherche->Couleur) == 0)
+                    if (strcmp((vin+((index + i)->IdVin-1))->NomCuvee, vinrecherche->NomCuvee) == 0)
+                        if (strcmp((vin+((index + i)->IdVin-1))->Appellation, vinrecherche->Appellation) == 0)
+                            found = (vin+((index + i)->IdVin-1))->IdVin;
+        }
+    }
+
+    return found;
+
+
 }
