@@ -277,7 +277,7 @@ void show_header(void)
         putc('-', stdout);
 
     fputs("\n|\t", stdout);
-    printf("\tDossier 1\t");
+    printf("\tDossier 2\t");
 
     for (i = 0; i < 7; i++)
         putc(' ', stdout);
