@@ -116,8 +116,8 @@ void InsertionIND(struct Vin* vin, struct IndVin* index, int nvin);
 
 short convertToINT(char *str, int str_length, int *to_convert);
 
-void RechercheAppellation(struct Vin *vin, int nvin, char *Appellation);
-void RechercheMillesime(struct Vin *vin, int nvin, char *Millesime);
+void RechercheAppellation(struct Vin *vin, struct IndVin *index, int nvin, char *Appellation);
+void RechercheMillesime(struct Vin *vin, struct IndVin *index, int nvin, char *Millesime);
 long RechercheExistant(struct Vin *vin, struct IndVin *index, int nvin, struct Vin *vinrecherche);
 int main(int argc, char* argv[])
 {
@@ -238,7 +238,7 @@ int main(int argc, char* argv[])
             {
                 printf("Entrez l'appellation a rechercher : ");
                 secureInput(appellation, sizeof(appellation));
-                RechercheAppellation(vins, nvin, appellation);
+                RechercheAppellation(vins, index, nvin, appellation);
             }
             else
                 printf("\n\nAucun vin n'a encore ete encoder !\n\n");
@@ -249,7 +249,7 @@ int main(int argc, char* argv[])
             {
                 printf("Entrez le millesime a rechercher : ");
                 secureInput(millesime, sizeof(millesime));
-                RechercheMillesime(vins, nvin, millesime);
+                RechercheMillesime(vins, index, nvin, millesime);
             }
             else
                 printf("\n\nAucun vin n'a encore ete encoder !\n\n");
@@ -478,29 +478,34 @@ void InsertionIND(struct Vin* vin, struct IndVin* index, int nvin)
 {
     int i;
     i = nvin - 1;
-    while (i >= 0 && strcmp((((index + i)->Pays)), vin->Pays) > 0)
+    while (i >= 0 && strcmp((index + i)->Pays, vin->Pays) > 0)
     {
         *(index + i + 1) = *(index + i);
         i--;
     }
-    while (i >= 0 && strcmp((((index + i)->Region)), vin->Region) > 0 && strcmp((index + i)->Pays, vin->Pays) == 0)
+    while (i >= 0 && strcmp((index + i)->Pays, vin->Pays) == 0 && strcmp((index + i)->Region, vin->Region) > 0)
     {
         *(index + i + 1) = *(index + i);
         i--;
     }
-    while (i >= 0 && strcmp((((index + i)->Appellation)), vin->Appellation) > 0 && strcmp((index + i)->Pays, vin->Pays) == 0 && strcmp((index + i)->Region, vin->Region) == 0)
+    while (i >= 0 && strcmp((index + i)->Pays, vin->Pays) == 0 && strcmp((index + i)->Region, vin->Region) == 0 && strcmp((index + i)->Appellation, vin->Appellation) > 0)
     {
        *(index + i + 1) = *(index + i);
         i--;
     }
+    while (i >= 0 && strcmp((index + i)->Appellation, vin->Appellation) == 0 && strcmp((index + i)->Pays, vin->Pays) == 0 && strcmp((index + i)->Region, vin->Region) == 0 && strcmp((index + i)->Annee, vin->Annee) < 0)
+    {
+        *(index + i + 1) = *(index + i);
+        i--;
+    }
 
 
-    ((index + i + 1)->IdVin) = vin->IdVin;
-    strcpy(((index + i + 1)->Annee), (vin->Annee));
-    strcpy(((index + i + 1)->Producteur), (vin->producteur));
-    strcpy(((index + i + 1)->Appellation), (vin->Appellation));
-    strcpy(((index + i + 1)->Region), (vin->Region));
-    strcpy(((index + i + 1)->Pays), (vin->Pays));
+    (index + i + 1)->IdVin = vin->IdVin;
+    strcpy((index + i + 1)->Annee, (vin->Annee));
+    strcpy((index + i + 1)->Producteur, (vin->producteur));
+    strcpy((index + i + 1)->Appellation, (vin->Appellation));
+    strcpy((index + i + 1)->Region, (vin->Region));
+    strcpy((index + i + 1)->Pays, (vin->Pays));
 }
 
 
@@ -516,27 +521,29 @@ short convertToINT(char *str, int str_length, int *to_convert)
     *to_convert = atoi(str);
     return 0;
 }
-void RechercheAppellation(struct Vin *vin, int nvin, char *Appellation)
+void RechercheAppellation(struct Vin *vin, struct IndVin *index, int nvin, char *Appellation)
 {
-    int i;
-    for (i = 0; i < nvin; i++)
+    int i = 0;
+    while (i < nvin)
     {
-        if (strcmp((vin+i)->Appellation, Appellation) == 0)
+        if (strcmp((index+i)->Appellation, Appellation) == 0)
         {
-            AfficheVin(vin+i);
+            AfficheVin(vin + ((index + i)->IdVin-1));
         }
+        i++;
     }
 }
 
-void RechercheMillesime(struct Vin *vin, int nvin, char *Millesime)
+void RechercheMillesime(struct Vin *vin, struct IndVin *index, int nvin, char *Millesime)
 {
-    int i;
-    for (i = 0; i < nvin; i++)
+    int i = 0;
+    while (i < nvin)
     {
-        if (strcmp((vin+i)->Annee, Millesime) == 0)
+        if (strcmp((index+i)->Annee, Millesime) == 0)
         {
-            AfficheVin(vin+i);
+            AfficheVin(vin + ((index + i)->IdVin-1));
         }
+        i++;
     }
 }
 
