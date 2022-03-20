@@ -27,6 +27,8 @@ struct Bouteille
     
 };
 int fileexist(FILE**srcFile, const char *filename);
-void affichageBouteille(struct Bouteille bout);
+void affichageBouteille(struct Bouteille *bout);
+short ecrireBouteille(struct Bouteille *bout, FILE *srcFile);
+short lireBouteille(struct Bouteille *bout, FILE *srcFile);
 
 #endif
