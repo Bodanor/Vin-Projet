@@ -77,27 +77,52 @@ void InsertionIND(struct Vin* vin, struct IndVin* index, int nvin)
 void RechercheAppellation(struct Vin *vin, struct IndVin *index, int nvin, char *Appellation)
 {
     int i = 0;
-    while (i < nvin)
+    char c = '\n';
+
+    if (i < nvin)
     {
-        if (strcmp((index+i)->Appellation, Appellation) == 0)
+        while (i < nvin && c == '\n')
         {
-            AfficheVin(vin + ((index + i)->IdVin-1));
+            if (strcmp((index+i)->Appellation, Appellation) == 0)
+            {
+                AfficheVin(vin + ((index + i)->IdVin-1));
+                if (i+ 1 != nvin && nvin >= 2)
+                {
+                    printf("Appuyez sur enter pour afficher le vin suivant !\n");
+                    c = getchar();
+
+                }
+            }
+            i++;
         }
-        i++;
     }
+    else
+        printf("\n\nAucun vin n'a encore ete encoder !\n\n");
 }
 
 void RechercheMillesime(struct Vin *vin, struct IndVin *index, int nvin, char *Millesime)
 {
     int i = 0;
-    while (i < nvin)
+    char c = '\n';
+
+    if (i < nvin)
     {
-        if (strcmp((index+i)->Annee, Millesime) == 0)
+        while (i < nvin && c == '\n')
         {
-            AfficheVin(vin + ((index + i)->IdVin-1));
-        }
+            if (strcmp((index+i)->Annee, Millesime) == 0)
+            {
+                AfficheVin(vin + ((index + i)->IdVin-1));
+                if (i + 1 != nvin && nvin >= 2)
+                {
+                    printf("Appuyez sur enter pour afficher le vin suivant !\n");
+                    c = getchar();
+                }
+            }
         i++;
+        }
     }
+    else
+        printf("\n\nAucun vin n'a encore ete encoder !\n\n");
 }
 
 long RechercheExistant(struct Vin *vin, struct IndVin *index, int nvin, struct Vin *vinrecherche)

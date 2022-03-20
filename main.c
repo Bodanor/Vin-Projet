@@ -14,6 +14,7 @@
 
 #include "util_vin.h"
 #include "vin.h"
+#include "bouteille.h"
 
 /**
  *
@@ -37,6 +38,8 @@ void show_main_menu(void);
 
 int main(int argc, char* argv[])
 {
+
+    /* Variable pour le vin */
     struct Vin vins[2];
     int nvin;   /* nombre de vins encodés */
     struct IndVin index[1000];  /* index */
@@ -44,6 +47,13 @@ int main(int argc, char* argv[])
     int i, status, menu_option = 0;
 
     nvin = 0;
+    /* Fin Variable des vins */
+
+    /* Variable pour les bouteilles */
+    struct Bouteille bout;
+    FILE *fbouteilles= NULL;
+    int nbouteilles;
+     /* Fin Variable des bouteilles */
 
     do
     {
@@ -92,11 +102,11 @@ int main(int argc, char* argv[])
         else if (menu_option == 2)
         {
             int i = 0;
-            char c = '\0';
+            char c = '\n';
             if (nvin > 0)
             {
                 printf("Appuyez sur enter pour afficher le vin suivant !\n");
-                while(i < nvin && c == '\0')
+                while(i < nvin && c == '\n')
                 {
                     AfficheVin((vins+((index+i)->IdVin -1)));
                     secureInput(choice, sizeof(choice));
