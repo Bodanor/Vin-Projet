@@ -21,11 +21,12 @@ struct Bouteille
     int VolumeAlcool;
     char Emplacement[7];
     long IdFournisseur;
-    long idVin;
+    long IdVin;
     struct date DateConso;
     char NoteConso [50];
     
 };
 int fileexist(FILE**srcFile, const char *filename);
+void affichageBouteille(struct Bouteille bout);
 
 #endif

@@ -32,8 +32,8 @@ void show_header(void);
 void show_main_menu(void);
 
 
-
-
+void show_menu_bouteille(void);
+void show_menu_vin(void);
 
 
 int main(int argc, char* argv[])
@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
     int nvin;   /* nombre de vins encodés */
     struct IndVin index[1000];  /* index */
     char choice[3], appellation[40], millesime[5], id[3];
-    int i, status, menu_option = 0;
+    int i, status, menu_option = 0, c;
 
     nvin = 0;
     /* Fin Variable des vins */
@@ -55,99 +55,205 @@ int main(int argc, char* argv[])
     int nbouteilles;
      /* Fin Variable des bouteilles */
 
-    do
+    if ((fileexist(&fbouteilles, "FileBouteilles.dat")) != -1)
     {
         do
         {
-            show_header();
-            show_main_menu();
+            do
+            {    
+                show_header();
+                show_main_menu();
+                
+                status = 0;
+                printf("Choix --> ");
+                secureInput(choice, sizeof(choice));
 
-            status = 0;
-            printf("Choix --> ");
-            secureInput(choice, sizeof(choice));
-
-            i = 0;
-            while (status != -1 && choice[i] != '\0')
-            {
-                if (choice[i] != '\0' && !isdigit(choice[i]))
+                i = 0;
+                while (status != -1 && choice[i] != '\0')
                 {
-                    printf("\nChoix mal forme !\n");
-                    status = -1;
-                    i = 0;
+                    if (choice[i] != '\0' && !isdigit(choice[i]))
+                    {
+                        printf("\nChoix mal forme !\n");
+                        status = -1;
+                        i = 0;
+                    }
+                    else
+                        i++;
                 }
-                else
-                    i++;
-            }
-        }while (status == -1);
+            }while (status == -1);
 
-        if (status == -1)
-            menu_option = 0;
-        else
             menu_option = atoi(choice);
 
-        if (menu_option == 1)
-        {
+            switch(menu_option)
+            {
+                case 1:
+                    do
+                    {
+                        do
+                        {
+                            show_header();
+                            show_menu_vin();
+                            status = 0;
+                            printf("Choix --> ");
+                            secureInput(choice, sizeof(choice));
 
-            while (nvin < 1000 && EncodeVin(vins, index, &vins[nvin], nvin))
-            {
-                nvin++;
-            }
-            if (nvin == 1000)
-            {
-                printf("\n\nLa taille maximum du tableau vin a ete atteinte !\n\n");
-            }
-            else
-                printf("\n\nEncodage interrompu par l'utilisateur !\n\n");
-        }
-        else if (menu_option == 2)
-        {
-            int i = 0;
-            char c = '\n';
-            if (nvin > 0)
-            {
-                printf("Appuyez sur enter pour afficher le vin suivant !\n");
-                while(i < nvin && c == '\n')
-                {
-                    AfficheVin((vins+((index+i)->IdVin -1)));
-                    secureInput(choice, sizeof(choice));
-                    c = *choice;    // Essaye de contourner ca.
-                    i++;
-                }
-            }
-            else
-                printf("\n\nAucun vin n'a encore ete encoder !\n\n");
+                            i = 0;
+                            while (status != -1 && choice[i] != '\0')
+                            {
+                                if (choice[i] != '\0' && !isdigit(choice[i]))
+                                {
+                                    printf("\nChoix mal forme !\n");
+                                    status = -1;
+                                    i = 0;
+                                }
+                                else
+                                    i++;
+                            }
+                        }while (status == -1);
+
+                        menu_option = atoi(choice);
+                    
+                        switch(menu_option)
+                        {
+                            case 1:
+                                    while (nvin < 1000 && EncodeVin(vins, index, &vins[nvin], nvin))
+                                    {
+                                        nvin++;
+                                    }
+                                    if (nvin == 1000)
+                                    {
+                                        printf("\n\nLa taille maximum du tableau vin a ete atteinte !\n\n");
+                                    }
+                                    else
+                                        printf("\n\nEncodage interrompu par l'utilisateur !\n\n");
+                                    
+                                    break;
+                            
+                            case 2:
+                                i = 0;
+                                c = '\n';
+                                if (nvin > 0)
+                                {
+                                    while(i < nvin && c == '\n')
+                                    {
+                                        AfficheVin((vins+((index+i)->IdVin -1)));
+                                        if (i + 1 != nvin && nvin >= 2)
+                                        {
+                                            printf("Appuyez sur enter pour afficher le vin suivant !\n");
+                                            c = getchar();
+                                        }
+                                        
+                                        i++;
+                                    }
+                                }
+                                else
+                                    printf("\n\nAucun vin n'a encore ete encoder !\n\n");
+
+                                break;
+                            
+                            case 3:
+                                if (nvin > 0)
+                                {
+                                    printf("Entrez l'appellation a rechercher : ");
+                                    secureInput(appellation, sizeof(appellation));
+                                    RechercheAppellation(vins, index, nvin, appellation);
+                                }
+                                else
+                                    printf("\n\nAucun vin n'a encore ete encoder !\n\n");
+                                break;
 
 
-        }
-        else if (menu_option == 3)
-        {
-            if (nvin > 0)
-            {
-                printf("Entrez l'appellation a rechercher : ");
-                secureInput(appellation, sizeof(appellation));
-                RechercheAppellation(vins, index, nvin, appellation);
-            }
-            else
-                printf("\n\nAucun vin n'a encore ete encoder !\n\n");
-        }
-        else if (menu_option == 4)
-        {
-            if (nvin > 0)
-            {
-                printf("Entrez le millesime a rechercher : ");
-                secureInput(millesime, sizeof(millesime));
-                RechercheMillesime(vins, index, nvin, millesime);
-            }
-            else
-                printf("\n\nAucun vin n'a encore ete encoder !\n\n");
-        }
-        else
-        {
-            if (menu_option != 99)
-                printf("\nChoix invalide !\n");
-        }
-    }while (menu_option != 99);
 
+                            case 4:
+                                if (nvin > 0)
+                                {
+                                    printf("Entrez le millesime a rechercher : ");
+                                    secureInput(millesime, sizeof(millesime));
+                                    RechercheMillesime(vins, index, nvin, millesime);
+                                }
+                                else
+                                    printf("\n\nAucun vin n'a encore ete encoder !\n\n");
+                                break;
+                            
+                            
+                            default:
+                                if (menu_option != 99)
+                                    printf("\nChoix invalide !\n");
+                            
+                        }
+                    }while(menu_option != 99);
+
+                    menu_option = 0;
+                    break;
+                case 2:
+                    show_header();
+                    show_menu_bouteille();
+                    do
+                    {
+                        do
+                        {
+                            show_header();
+                            show_menu_bouteille();
+                            status = 0;
+                            printf("Choix --> ");
+                            secureInput(choice, sizeof(choice));
+
+                            i = 0;
+                            while (status != -1 && choice[i] != '\0')
+                            {
+                                if (choice[i] != '\0' && !isdigit(choice[i]))
+                                {
+                                    printf("\nChoix mal forme !\n");
+                                    status = -1;
+                                    i = 0;
+                                }
+                                else
+                                    i++;
+                            }
+                        }while (status == -1);
+                        menu_option = atoi(choice);
+
+                        switch (menu_option)
+                        {
+
+                            case 2:
+                                i = 0;
+                                c = '\n';
+                                if (nbouteilles > 0)
+                                {
+                                    while(i < nbouteilles && c == '\n')
+                                    {
+                                        affichageBouteille(bout);
+                                        if (i + 1 != nbouteilles && nbouteilles >=2)
+                                        {
+                                            printf("Appuyez sur enter pour afficher la bouteille suivante !\n");
+                                            c = getchar();
+                                        }
+                                        i++;
+                                    }
+                                }
+                                else
+                                    printf("\n\nAucun vin n'a encore ete encoder !\n\n");
+
+                                break;
+                            
+                        }
+
+                    }while(menu_option != 99);
+
+                    menu_option = 0;
+                    break;
+                default:
+                    if (menu_option != 99)
+                        printf("\nChoix invalide !\n");
+            }
+
+
+
+        }while (menu_option != 99);
+    
+        fclose(fbouteilles);
+    }
     return 0;
 
 }
@@ -183,12 +289,28 @@ void show_header(void)
 /*  OUTPUT : /                              */
 /********************************************/
 
-void show_main_menu(void)
+void show_menu_vin(void)
 {
     printf("1) Ajouter des vins\n");
     printf("2) Afficher tout les vins\n");
     printf("3) Rechercher par Appellation\n");
     printf("4) Rechercher par Millesime\n\n");
-    printf("99) Quitter\n\n");
+    printf("99) Revenir au menu precedent\n\n");
 }
 
+void show_menu_bouteille(void)
+{
+    printf("1) Ajout d'une nouvelle bouteille (en fin de fichier)\n");
+    printf("2) Affichage  du fichier bouteilles(avec arret premature si souhaite)\n ");
+    printf("3) Recherche de la fiche d'une bouteille (dont on donne l'emplacement)\n");
+    printf("4) Consommation d'une bouteille\n\n");
+    printf("5) Revenir au menu precedent\n\n");
+
+}
+
+void show_main_menu(void)
+{
+    printf("1) Vins\n");
+    printf("2) Bouteilles\n\n");
+    printf("99) Quitter\n\n");
+}

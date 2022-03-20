@@ -90,7 +90,6 @@ void RechercheAppellation(struct Vin *vin, struct IndVin *index, int nvin, char 
                 {
                     printf("Appuyez sur enter pour afficher le vin suivant !\n");
                     c = getchar();
-
                 }
             }
             i++;
