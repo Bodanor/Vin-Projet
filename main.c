@@ -42,7 +42,6 @@ int main(int argc, char* argv[])
     struct IndVin index[1000];  /* index */
     char choice[3], appellation[40], millesime[5], id[3];
     int i, status, menu_option = 0;
-    long idExistant;
 
     nvin = 0;
 
@@ -79,21 +78,9 @@ int main(int argc, char* argv[])
         if (menu_option == 1)
         {
 
-            while (nvin < 1000 && EncodeVin(&vins[nvin], nvin))
+            while (nvin < 1000 && EncodeVin(vins, index, &vins[nvin], nvin))
             {
-                
-                if ((idExistant = RechercheExistant(vins, index, nvin, &vins[nvin])))
-                {
-                    printf("\n\nCe vin est deja encoder avec comme ID : %ld!\n\n", idExistant);
-                }
-                else
-                {
-                    InsertionIND(&vins[nvin], index, nvin);
-                    printf("\n\t\t\t\t\t\tVin encode !\n");
-                    printf("\t\t\t\t\t\tId : %ld\n", (vins + nvin)->IdVin);
-                    printf("\t\t\t\t\t\tTotal vin : %d\n\n", nvin + 1);
-                    nvin++;
-                }
+                nvin++;
             }
             if (nvin == 1000)
             {
@@ -124,32 +111,6 @@ int main(int argc, char* argv[])
         }
         else if (menu_option == 3)
         {
-            do
-            {
-                status = 0;
-                printf("Entrez l'ID : ");
-                secureInput(id, sizeof(id));
-
-                i = 0;
-                status = 0;
-                while (status != -1 && id[i] != '\0')
-                {
-                    if (id[i] != '\0' && !isdigit(id[i]))
-                    {   
-                        printf("L'ID est mal forme !\n");
-                        i = 0;
-                        status = -1;
-                    }
-                    else
-                        i++;
-                }
-
-            } while (status == -1);
-
-            AfficheVin(vins);
-        }
-        else if (menu_option == 4)
-        {
             if (nvin > 0)
             {
                 printf("Entrez l'appellation a rechercher : ");
@@ -159,7 +120,7 @@ int main(int argc, char* argv[])
             else
                 printf("\n\nAucun vin n'a encore ete encoder !\n\n");
         }
-        else if (menu_option == 5)
+        else if (menu_option == 4)
         {
             if (nvin > 0)
             {
@@ -193,7 +154,7 @@ void show_header(void)
         putc('-', stdout);
 
     fputs("\n|\t", stdout);
-    printf("\tDossier 2\t");
+    printf("\tDossier 3\t");
 
     for (i = 0; i < 7; i++)
         putc(' ', stdout);
@@ -216,9 +177,8 @@ void show_main_menu(void)
 {
     printf("1) Ajouter des vins\n");
     printf("2) Afficher tout les vins\n");
-    printf("3) Afficher un vin specifique\n");
-    printf("4) Rechercher par Appellation\n");
-    printf("5) Rechercher par Millesime\n\n");
+    printf("3) Rechercher par Appellation\n");
+    printf("4) Rechercher par Millesime\n\n");
     printf("99) Quitter\n\n");
 }
 

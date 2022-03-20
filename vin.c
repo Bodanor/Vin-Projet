@@ -123,12 +123,13 @@ long RechercheExistant(struct Vin *vin, struct IndVin *index, int nvin, struct V
 }
 
 
-short EncodeVin(struct Vin* vin, int nvin)
+short EncodeVin(struct Vin *vins, struct IndVin *index, struct Vin* vin, int nvin)
 {
 
+    long idExistant;
     int status = 0, color_choice, date, garde_check, garde;
     char buffer[10];
-    vin->IdVin = ++nvin;
+    vin->IdVin = nvin + 1;
     printf("Producteur : ");
     status = secureInput(vin->producteur, sizeof(vin->producteur));
     if (status == 0)
@@ -201,6 +202,18 @@ short EncodeVin(struct Vin* vin, int nvin)
         }
     } while (garde_check == -1);
     
+    if ((idExistant = RechercheExistant(vins, index, nvin, vin)))
+        {
+            printf("\n\nCe vin est deja encoder avec comme ID : %ld!\n\n", idExistant);
+            return 0;
+        }
+    else
+    {
+        InsertionIND(&vins[nvin], index, nvin);
+        printf("\n\t\t\t\t\t\tVin encode !\n");
+        printf("\t\t\t\t\t\tId : %ld\n", (vins + nvin)->IdVin);
+        printf("\t\t\t\t\t\tTotal vin : %d\n\n", nvin + 1);
+    }
 
     return 1;
 

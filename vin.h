@@ -41,7 +41,7 @@ struct IndVin
  * @return 1    : If all data have been successfully encodedd into the vin struct without beeing interrupted.
  */
 
-short EncodeVin(struct Vin* vin, int nvin);
+short EncodeVin(struct Vin *vins, struct IndVin *index, struct Vin* vin, int nvin);
 /**
  * @brief print all the fields of a given ID if it exists in the array of struct to the screen.
  *
