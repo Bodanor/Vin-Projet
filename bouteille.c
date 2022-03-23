@@ -7,7 +7,7 @@ int openDatabase(FILE**srcFile)
     *srcFile = fopen(FILENAME, "ab+");
     if (*srcFile == NULL)
     {
-        printf("Ouverture du fichier \"%s\" impossible\n%s\n", FILENAME, strerror(errno));
+        printf("\nOuverture du fichier \"%s\" impossible\n%s\n\n", FILENAME, strerror(errno));
         return -1;
     }
     else
@@ -54,10 +54,10 @@ short lireBouteille (struct Bouteille *bout, FILE *srcFile)
     }
     return 1;
 }
-short EncodeBouteille(struct Bouteille *bout, int nbouteille, struct Vin *vins, int nvin, FILE *SrcFile)
+short EncodeBouteille(struct Bouteille *bout, int nbouteille, struct Vin *vins, int nvin)
 {
     int status = 0;
-    char buffer[10];
+    char buffer[10], emplacement[7];
     FILE *srcFile;
 
     bout->IdBouteille = nbouteille + 1;
@@ -122,10 +122,22 @@ short EncodeBouteille(struct Bouteille *bout, int nbouteille, struct Vin *vins, 
 
     }while(bout->VolumeAlcool <= 1);
 
-    printf("Entrez l'emplacement : ");
-    status = secureInput(bout->Emplacement, sizeof(bout->Emplacement));
-    if (status == 0)
-        return 0;
+    do
+    {
+        printf("Entrez l'emplacement : ");
+        status = secureInput(emplacement, sizeof(emplacement));
+        if (status == 0)
+            return 0;
+
+        if (RechercheBoutempl(emplacement, nbouteille))
+        {
+            printf("\nCet emplacement existe deja !\n");
+            status = -1;
+        }
+        else
+            strcpy(bout->Emplacement, emplacement);
+    }while(status == -1);
+
 
     do
     {
@@ -180,25 +192,40 @@ short EncodeBouteille(struct Bouteille *bout, int nbouteille, struct Vin *vins, 
     }
     else
         return -1;
+    
+    return 1;
 }
-/*
     //fonction de recherche de bouteille en fct de l'emplacement
-    int RechercheBoutempl(struct Bouteille *bout,FILE*srcFile )
+    int RechercheBoutempl(char *rechercher, int nbouteilles)
     {
-        int trouv=0;
-        char nomempl[7];
-        fflsuh(stdin);
-        gets(nomempl);
-        srcFile =fopen("FileBouteilles.dat","rb");
-        if(srcFile !=NULL) 
+        
+        struct Bouteille bout;
+        int trouv, i;
+        FILE *SrcFile;
+
+        trouv = i = 0;
+        if (i < nbouteilles)
         {
-            while(!trouve && fread(&))
-            
+            if(openDatabase(&SrcFile) != -1) 
+            {
+                rewind(SrcFile);
+                while(i < nbouteilles && trouv == 0 && (lireBouteille(&bout, SrcFile)) != -1)
+                {
+                    if(strcmp(rechercher,bout.Emplacement) == 0)
+                        trouv = 1;
+                    i++;
+                }
+                if(trouv==1)
+                {
+                    //affichageBouteille(&bout);
+                }
+                fclose(SrcFile);
+                
+            }
         }
+        return trouv;
         
         
     }
     
 
-
-*/

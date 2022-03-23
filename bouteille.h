@@ -35,7 +35,7 @@ int openDatabase(FILE**srcFile);
 void affichageBouteille(struct Bouteille *bout);
 short ecrireBouteille(struct Bouteille *bout, FILE *srcFile);
 short lireBouteille(struct Bouteille *bout, FILE *srcFile);
-short EncodeBouteille(struct Bouteille *bout, int nbouteille, struct Vin *vins, int nvin, FILE *SrcFile);
-int RechercheBoutempl(struct Bouteille *bout, FILE *srcFile );
+short EncodeBouteille(struct Bouteille *bout, int nbouteille, struct Vin *vins, int nvin);
+int RechercheBoutempl(char *recherchern, int nbouteilles);
 
 #endif

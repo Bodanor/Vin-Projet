@@ -216,7 +216,18 @@ int main(int argc, char* argv[])
                     {
                         
                         case 1:
-                            EncodeBouteille(&bout, nbouteilles, vins, nvin, fbouteilles);
+
+                            while (nvin < 1000 && (status = EncodeBouteille(&bout, nbouteilles, vins, nvin)) == 1)
+                            {
+                                nbouteilles++;
+                            }
+                            if (nvin == 1000)
+                            {
+                                printf("\n\nLa taille maximum du tableau bouteille a ete atteinte !\n\n");
+                            }
+                            else if (status == 0)
+                                printf("\n\nEncodage interrompu par l'utilisateur !\n\n");
+                            
                             break;
                         case 2:
                             i = 0;
@@ -240,6 +251,7 @@ int main(int argc, char* argv[])
                                     fclose(fbouteilles);
 
                                 }
+                                return -1;
                                
                             }
                             else
