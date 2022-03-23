@@ -7,7 +7,7 @@
 
 #include "vin.h"
 
-
+#define FILENAME "FileBouteilles.dat"
 
 struct date
 {
@@ -31,10 +31,11 @@ struct Bouteille
     
 };
 
-int fileexist(FILE**srcFile, const char *filename);
+int openDatabase(FILE**srcFile);
 void affichageBouteille(struct Bouteille *bout);
 short ecrireBouteille(struct Bouteille *bout, FILE *srcFile);
 short lireBouteille(struct Bouteille *bout, FILE *srcFile);
 short EncodeBouteille(struct Bouteille *bout, int nbouteille, struct Vin *vins, int nvin, FILE *SrcFile);
-void RechercheBoutempl(struct Bouteille *bout, FILE *srcFile );
+int RechercheBoutempl(struct Bouteille *bout, FILE *srcFile );
+
 #endif

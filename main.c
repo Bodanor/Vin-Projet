@@ -54,21 +54,6 @@ int main(int argc, char* argv[])
     FILE *fbouteilles= NULL;
     int nbouteilles = 0;
      /* Fin Variable des bouteilles */
-
-
-    bout.IdBouteille = 1;
-    bout.DateAchat.annee = 2001;
-    bout.DateAchat.jour = 5;
-    bout.DateAchat.mois = 10;
-    bout.PrixAchat =30;
-    bout.Contenance = 100;
-    strcpy(bout.Emplacement, "jsp");
-    
-    bout.IdVin = 1;
-    bout.DateConso.annee = 2001;
-    bout.DateConso.jour = 23;
-    bout.DateConso.mois = 8;
-    strcpy(bout.NoteConso, "nique ta mere");
     
     do
     {
@@ -239,7 +224,7 @@ int main(int argc, char* argv[])
 
                             if (nbouteilles > 0)
                             {
-                                if (fileexist(&fbouteilles, "FileBouteilles.dat") != -1)
+                                if (openDatabase(&fbouteilles) != -1)
                                 {
                                     rewind(fbouteilles);
                                     while (i < nbouteilles && (lireBouteille(&bout, fbouteilles) != -1) && c == '\n')
@@ -252,6 +237,7 @@ int main(int argc, char* argv[])
                                         }
                                         i++;
                                     }
+                                    fclose(fbouteilles);
 
                                 }
                                

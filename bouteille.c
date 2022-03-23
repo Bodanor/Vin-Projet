@@ -2,12 +2,12 @@
  
 
 
-int fileexist(FILE**srcFile, const char *filename)
+int openDatabase(FILE**srcFile)
 {
-    *srcFile = fopen(filename, "ab+");
+    *srcFile = fopen(FILENAME, "ab+");
     if (*srcFile == NULL)
     {
-        printf("Ouverture du fichier %s impossible\n%s\n", filename, strerror(errno));
+        printf("Ouverture du fichier \"%s\" impossible\n%s\n", FILENAME, strerror(errno));
         return -1;
     }
     else
@@ -42,6 +42,8 @@ short ecrireBouteille(struct Bouteille *bout, FILE *srcFile)
         return -1;
     }
     return 1;
+    
+
 }
 short lireBouteille (struct Bouteille *bout, FILE *srcFile)
 {
@@ -56,6 +58,7 @@ short EncodeBouteille(struct Bouteille *bout, int nbouteille, struct Vin *vins, 
 {
     int status = 0;
     char buffer[10];
+    FILE *srcFile;
 
     bout->IdBouteille = nbouteille + 1;
     /*
@@ -167,25 +170,35 @@ short EncodeBouteille(struct Bouteille *bout, int nbouteille, struct Vin *vins, 
     bout->DateConso.jour = 0;
     bout->DateConso.mois = 0;
     *bout->NoteConso = '\0';
+
+    if (openDatabase(&srcFile) != -1)
+    {
+        if (ecrireBouteille(bout, srcFile) == -1)
+            return -1;
+        else
+            fclose(srcFile);
+    }
+    else
+        return -1;
 }
 /*
     //fonction de recherche de bouteille en fct de l'emplacement
-    void RechercheBoutempl(struct Bouteille *bout,FILE*srcFile )
+    int RechercheBoutempl(struct Bouteille *bout,FILE*srcFile )
     {
         int trouv=0;
         char nomempl[7];
         fflsuh(stdin);
         gets(nomempl);
-        *srcFile=fopen("FileBouteilles.dat,"rb");
-        if(*srcFile !=NULL) 
-        {2
-            while(!trouve && fread())
+        srcFile =fopen("FileBouteilles.dat","rb");
+        if(srcFile !=NULL) 
+        {
+            while(!trouve && fread(&))
             
         }
         
         
     }
-    */
+    
 
 
-
+*/
