@@ -25,7 +25,7 @@ short secureInput(char* str, int size_str)
 
     if (i == 0)
         return 0;
-    return 1;
+    return i;
     /****************************************************************************/
     /*  INPUT : pointeur de structure vin                                       */
     /*          entier nvin : nombre de vin déja encoder                        */
@@ -37,14 +37,13 @@ short secureInput(char* str, int size_str)
 
 }
 
-short convertToINT(char *str, int str_length, int *to_convert)
+short verifyInt(char *str, int str_length)
 {
     int i;
     for (i = 0; i < str_length ; i++)
     {
-        if (!isdigit(*(str + i)))
+        if ( *(str + i) != '\0' && !isdigit(*(str + i)))
             return -1;
     }
-    *to_convert = atoi(str);
     return 0;
 }

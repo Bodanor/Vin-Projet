@@ -15,7 +15,7 @@
  */
 short secureInput(char* str, int size_str);
 
-short convertToINT(char *str, int str_length, int *to_convert);
+short verifyInt(char *str, int str_length);
 
 
 #endif

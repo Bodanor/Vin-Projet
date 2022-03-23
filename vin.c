@@ -181,8 +181,17 @@ short EncodeVin(struct Vin *vins, struct IndVin *index, struct Vin* vin, int nvi
         status = secureInput(buffer, sizeof(buffer));
         if (!status)
             return 0;
-        if (convertToINT(buffer, 1, &color_choice) == -1 || (color_choice < 1 || color_choice > 7))
-            printf("\nChoix mal forme ou inexistant!\n");
+        
+        if (verifyInt(buffer, status) == -1)
+        {
+            printf("\nChoix mal forme !\n");
+        }
+        else
+        {
+            sscanf(buffer, "%d", &color_choice);
+            if (color_choice < 1 || color_choice > 7)
+                printf("\nChoix inexistant !\n");
+        }
 
     } while (color_choice < 1 || color_choice > 7);
 
@@ -194,10 +203,17 @@ short EncodeVin(struct Vin *vins, struct IndVin *index, struct Vin* vin, int nvi
         status = secureInput(vin->Annee, sizeof(vin->Annee));
         if (!status)
             return 0;
-        if (convertToINT(vin->Annee, 4, &date) == -1  || date < 1800)
+        
+        if (verifyInt(vin->Annee, status) == -1)
         {
-            printf("\nDate mal formee !\n");
+            printf("\nDate mal forme !\n");
             date = 0;
+        }
+        else
+        {
+            sscanf(vin->Annee, "%d", &date);
+            if (date < 1800)
+                printf("\nLa date est inferieure a 1800 !\n");
         }
 
     } while (date < 1800);
@@ -219,7 +235,7 @@ short EncodeVin(struct Vin *vins, struct IndVin *index, struct Vin* vin, int nvi
         if (!status)
             return 0;
 
-        if (convertToINT(vin->Garde, 4, &garde) == -1 || ((*(vin->Garde + 4) != '\0') && (strlen(vin->Garde) != 4)))
+        if (verifyInt(vin->Garde, status) == -1 || ((*(vin->Garde + 4) != '\0') && (strlen(vin->Garde) != 4)))
         {
             printf("\nGarde Invalide !\n");
             garde_check = -1;

@@ -5,6 +5,10 @@
 #include <errno.h>
 #include <string.h>
 
+#include "vin.h"
+
+
+
 struct date
 {
     short jour;
@@ -26,9 +30,11 @@ struct Bouteille
     char NoteConso [50];
     
 };
+
 int fileexist(FILE**srcFile, const char *filename);
 void affichageBouteille(struct Bouteille *bout);
 short ecrireBouteille(struct Bouteille *bout, FILE *srcFile);
 short lireBouteille(struct Bouteille *bout, FILE *srcFile);
-
+short EncodeBouteille(struct Bouteille *bout, int nbouteille, struct Vin *vins, int nvin, FILE *SrcFile);
+void RechercheBoutempl(struct Bouteille *bout, FILE *srcFile );
 #endif
