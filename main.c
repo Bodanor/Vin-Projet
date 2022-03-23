@@ -53,6 +53,8 @@ int main(int argc, char* argv[])
     struct Bouteille bout;
     FILE *fbouteilles= NULL;
     int nbouteilles = 0;
+    long bout_bytes;
+    char emplacement[7];
      /* Fin Variable des bouteilles */
     
     do
@@ -257,6 +259,39 @@ int main(int argc, char* argv[])
                             else
                                 printf("\n\nAucune bouteille n'a encore ete encoder !\n\n");
 
+                            break;
+                        
+                        case 3:
+
+                            if (nbouteilles > 0)
+                            {
+                                do 
+                                {
+                                    printf("Entrez l'emplacement a rechercher : ");
+                                    status = secureInput(emplacement, sizeof(emplacement));
+
+                                } while (status == 0);
+
+                                if (openDatabase(&fbouteilles) != -1)
+                                {
+                                    rewind(fbouteilles);
+                                    bout_bytes = RechercheBoutempl(emplacement, nbouteilles);
+                                    if (bout_bytes != 0)
+                                    {
+                                        fseek(fbouteilles, bout_bytes-sizeof(struct Bouteille), SEEK_SET);
+                                        lireBouteille(&bout, fbouteilles);
+                                        affichageBouteille(&bout);
+                                    }
+                                    else
+                                        printf("\n\nAucune bouteille n'a ete trouver avec comme emplacement \"%s\" !\n\n", emplacement);
+
+                                }
+                                else
+                                    return -1;
+                            }
+                            else
+                                printf("\n\nAucune bouteilles n'a encore ete encode !\n\n");
+                            
                             break;
                         
                     }

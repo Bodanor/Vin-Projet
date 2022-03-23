@@ -195,37 +195,37 @@ short EncodeBouteille(struct Bouteille *bout, int nbouteille, struct Vin *vins, 
     
     return 1;
 }
-    //fonction de recherche de bouteille en fct de l'emplacement
-    int RechercheBoutempl(char *rechercher, int nbouteilles)
-    {
-        
-        struct Bouteille bout;
-        int trouv, i;
-        FILE *SrcFile;
+//fonction de recherche de bouteille en fct de l'emplacement
+long RechercheBoutempl(char *rechercher, int nbouteilles)
+{
+    
+    struct Bouteille bout;
+    int i;
+    long curr_bytes;
+    FILE *SrcFile;
 
-        trouv = i = 0;
-        if (i < nbouteilles)
+    i = 0;
+    if (i < nbouteilles)
+    {
+        if(openDatabase(&SrcFile) != -1) 
         {
-            if(openDatabase(&SrcFile) != -1) 
+            rewind(SrcFile);
+            while(i < nbouteilles && (lireBouteille(&bout, SrcFile)) != -1)
             {
-                rewind(SrcFile);
-                while(i < nbouteilles && trouv == 0 && (lireBouteille(&bout, SrcFile)) != -1)
+                if(strcmp(rechercher,bout.Emplacement) == 0)
                 {
-                    if(strcmp(rechercher,bout.Emplacement) == 0)
-                        trouv = 1;
-                    i++;
+                    curr_bytes = ftell(SrcFile);
+                    fclose(SrcFile);
+                    return curr_bytes;
                 }
-                if(trouv==1)
-                {
-                    //affichageBouteille(&bout);
-                }
-                fclose(SrcFile);
-                
+                i++;
             }
+            fclose(SrcFile);
+            
         }
-        return trouv;
-        
-        
     }
+    return 0;
+    
+}
     
 
