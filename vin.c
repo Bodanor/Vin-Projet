@@ -168,10 +168,12 @@ short EncodeVin(struct Vin *vins, struct IndVin *index, struct Vin* vin, int nvi
         return 0;
     printf("Region : ");
     status = secureInput(vin->Region, sizeof(vin->Region));
-    if (status == 0);
+    if (status == 0)
+        return 0;
     printf("Pays : ");
     status = secureInput(vin->Pays, sizeof(vin->Pays));
-    if (status == 0);
+    if (status == 0)
+        return 0;
 
     do
     {
