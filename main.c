@@ -259,7 +259,8 @@ int main(int argc, char* argv[])
                                     fclose(fbouteilles);
 
                                 }
-                                return -1;
+                                else
+                                    return -1;
                                
                             }
                             else
