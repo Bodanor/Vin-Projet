@@ -151,7 +151,7 @@ short EncodeVin(struct Vin *vins, struct IndVin *index, struct Vin* vin, int nvi
 {
 
     long idExistant;
-    int status = 0, color_choice, date, garde_check, garde;
+    int status = 0, color_choice, date, garde_check;
     char buffer[10];
     vin->IdVin = nvin + 1;
     printf("Producteur : ");

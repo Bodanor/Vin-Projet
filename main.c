@@ -34,6 +34,10 @@ void show_main_menu(int nvin);
 
 void show_menu_bouteille(void);
 void show_menu_vin(void);
+/* fonction pour menu sur emplacement ou idbouteille*/
+void show_consommation_menu(void);
+/*  */
+
 
 
 int main(int argc, char* argv[])
@@ -43,7 +47,7 @@ int main(int argc, char* argv[])
     struct Vin vins[2];
     int nvin;   /* nombre de vins encodés */
     struct IndVin index[1000];  /* index */
-    char choice[3], appellation[40], millesime[5], id[3];
+    char choice[3], appellation[40], millesime[5];
     int i, status, menu_option = 0, c;
 
     nvin = 0;
@@ -55,6 +59,8 @@ int main(int argc, char* argv[])
     int nbouteilles = 0;
     long bout_bytes;
     char emplacement[7];
+    char Identifiant_bouteille[10];
+    long Id_bout;
      /* Fin Variable des bouteilles */
     
     do
@@ -267,7 +273,7 @@ int main(int argc, char* argv[])
                             {
                                 do 
                                 {
-                                    printf("Entrez l'emplacement a rechercher : ");
+                                    printf("Entrez l'emplacement a de la bouteille a rechercher : ");
                                     status = secureInput(emplacement, sizeof(emplacement));
 
                                 } while (status == 0);
@@ -282,6 +288,7 @@ int main(int argc, char* argv[])
                                         lireBouteille(&bout, fbouteilles);
                                         affichageBouteille(&bout);
                                     }
+
                                     else
                                         printf("\n\nAucune bouteille n'a ete trouver avec comme emplacement \"%s\" !\n\n", emplacement);
 
@@ -293,6 +300,123 @@ int main(int argc, char* argv[])
                                 printf("\n\nAucune bouteilles n'a encore ete encode !\n\n");
                             
                             break;
+                        
+                        case 4:
+                            if (nbouteilles > 0)
+                            {
+                                do
+                                {
+                                    do
+                                    {
+                                        show_header();
+                                        show_consommation_menu();
+                                        status = 0;
+                                        printf("Choix --> ");
+                                        secureInput(choice, sizeof(choice));
+
+                                        i = 0;
+                                        while (status != -1 && choice[i] != '\0')
+                                        {
+                                            if (choice[i] != '\0' && !isdigit(choice[i]))
+                                            {
+                                                printf("\nChoix mal forme !\n");
+                                                status = -1;
+                                                i = 0;
+                                            }
+                                            else
+                                                i++;
+                                        }
+                                    }while (status == -1);
+
+                                    menu_option = atoi(choice);
+
+                                    switch (menu_option)
+                                    {
+                                        case 1:
+                                            do
+                                            {
+                                                do
+                                                {
+                                                    printf("Entrez l'Identifiant de la bouteille : ");
+                                                    status = secureInput(Identifiant_bouteille, sizeof(Identifiant_bouteille));
+                                                }while (status == 0);
+
+                                                if (verifyInt(Identifiant_bouteille, status) == -1)
+                                                {
+                                                    printf("Identifiant mal forme !\n");
+                                                    Id_bout = -1;
+                                                }
+                                                else
+                                                {
+                                                    sscanf(Identifiant_bouteille, "%ld", &Id_bout);
+                                                    if (Id_bout <= 0)
+                                                        printf("\nIdentifiant Invalide !\n\n");
+
+                                                }
+                                            }while (Id_bout <= 0);
+
+
+                                            if (openDatabase(&fbouteilles) != -1)
+                                            {
+                                                bout_bytes = RechercheBoutId(Id_bout, nbouteilles);
+                                                if (bout_bytes != 0)
+                                                {
+                                                    fseek(fbouteilles, bout_bytes-sizeof(struct Bouteille), SEEK_SET);
+                                                    lireBouteille(&bout, fbouteilles);
+                                                    consommerBouteille(&bout);
+                                                    fseek(fbouteilles, bout_bytes-sizeof(struct Bouteille), SEEK_SET);
+                                                    ecrireBouteille(&bout, fbouteilles);
+                                                }
+                                                else
+                                                    printf("\n\nAucune bouteille n'a ete trouver avec comme Id \"%ld\" !\n\n", Id_bout);
+                                                
+                                                fclose(fbouteilles);
+                                            }
+                                            break;
+
+                                        case 2:
+                                            do
+                                            {
+                                                printf("Entrez l'emplacement de la bouteille : ");
+                                                status = secureInput(emplacement, sizeof(emplacement));
+                                            }while (status == 0);
+
+                                            if (openDatabase(&fbouteilles) != -1)
+                                            {
+                                                status =fseek(fbouteilles, 0, SEEK_SET);
+                                                
+                                                bout_bytes = RechercheBoutempl(emplacement, nbouteilles);
+                                                if (bout_bytes != 0)
+                                                {
+                                                    fseek(fbouteilles, bout_bytes-sizeof(struct Bouteille), SEEK_SET);
+                                                    lireBouteille(&bout, fbouteilles);
+                                                    consommerBouteille(&bout);
+                                                    fseek(fbouteilles, bout_bytes-sizeof(struct Bouteille), SEEK_SET);
+                                                    ecrireBouteille(&bout, fbouteilles);
+
+                                                }
+
+                                                else
+                                                    printf("\n\nAucune bouteille n'a ete trouver avec comme emplacement \"%s\" !\n\n", emplacement);
+                                                fclose(fbouteilles);
+
+                                            }
+
+                                            break;
+                                        
+                                    }
+                                }while (menu_option != 99);
+                            }
+                            else
+                                printf("\nAucune bouteille n'a encore ete encode !\n\n");
+
+                            menu_option = 0;
+                            break;
+                        
+                        default:
+                            if (menu_option != 99)
+                                printf("\nChoix invalide !\n");
+                            
                         
                     }
 
@@ -369,4 +493,11 @@ void show_main_menu(int nvin)
     if (nvin > 0)
         printf("2) Bouteilles\n\n");
     printf("99) Quitter\n\n");
+}
+
+void show_consommation_menu(void)
+{
+    printf("1) Rechercher par Identifiant.\n");
+    printf("2) Rechercher par emplacement.\n\n");
+    printf("99) Revenir en arriere.\n\n");
 }
