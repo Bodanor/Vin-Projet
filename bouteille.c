@@ -34,8 +34,7 @@ int openDatabase(FILE**srcFile)
             return -1;
         }
     }
-    else
-        return 1;
+    return 1;
 
 }
 
@@ -310,6 +309,7 @@ int consommerBouteille(struct Bouteille *bout)
 
     printf("Entrez une note de consommation (optionel): ");
     secureInput(bout->NoteConso, sizeof(bout->NoteConso));
+    return 1;
     
 
 }
