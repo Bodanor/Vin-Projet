@@ -53,7 +53,7 @@ void affichageBouteille(struct Bouteille *bout)
     printf("Id du Fournisseur : %ld\n", bout->IdFournisseur);
     printf("Id du Vin : %ld\n", bout->IdVin);
     if (bout->DateConso.annee != 0)
-        printf("Date achat : %hd/%hd/%hd\n",bout->DateConso.jour, bout->DateConso.mois, bout->DateConso.annee);
+        printf("Date conso : %hd/%hd/%hd\n",bout->DateConso.jour, bout->DateConso.mois, bout->DateConso.annee);
     if (*bout->NoteConso != '\0')
         printf("NoteConso : %s\n\n", bout->NoteConso);
 }
