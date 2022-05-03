@@ -1,4 +1,4 @@
-#include "util_vin.h"
+#include "utils.h"
 
 
 /********************************************************************/
@@ -46,4 +46,20 @@ short verifyInt(char *str, int str_length)
             return -1;
     }
     return 0;
+}
+
+int openDatabase(FILE**srcFile, char *filename)
+{
+    *srcFile = fopen(filename, "r+b"); // SI il existe pas return NULL, sinon c'est que le fichier existe
+    if (*srcFile == NULL)
+    {
+        *srcFile = fopen(filename, "w+b");  // W+B force la creation du fichier.
+        if (*srcFile == NULL)
+        {
+            printf("\nOuverture du fichier \"%s\" impossible\n%s\n\n", filename, strerror(errno));  
+            return -1;
+        }
+    }
+    return 1;
+
 }

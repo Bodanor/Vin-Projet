@@ -22,21 +22,6 @@ static short compareDate(struct date *date1, struct date *date2)//date2 plus gra
     return a;
 }
 
-int openDatabase(FILE**srcFile)
-{
-    *srcFile = fopen(FILENAME, "r+b"); // SI il existe pas return NULL, sinon c'est que le fichier existe
-    if (*srcFile == NULL)
-    {
-        *srcFile = fopen(FILENAME, "w+b");  // W+B force la creation du fichier.
-        if (*srcFile == NULL)
-        {
-            printf("\nOuverture du fichier \"%s\" impossible\n%s\n\n", FILENAME, strerror(errno));  
-            return -1;
-        }
-    }
-    return 1;
-
-}
 
 void affichageBouteille(struct Bouteille *bout)
 {
@@ -214,7 +199,7 @@ short EncodeBouteille(struct Bouteille *bout, int nbouteille, struct Vin *vins, 
     bout->DateConso.mois = 0;
     *bout->NoteConso = '\0';
 
-    if (openDatabase(&srcFile) != -1)
+    if (openDatabase(&srcFile, FILENAMEBOUTEILLE) != -1)
     {
         if (ecrireBouteille(bout, srcFile) == -1)
         {
@@ -242,7 +227,7 @@ long RechercheBoutempl(char *rechercher, int nbouteilles)
     i = 0;
     if (i < nbouteilles)
     {
-        if(openDatabase(&SrcFile) != -1) 
+        if(openDatabase(&SrcFile, FILENAMEBOUTEILLE) != -1) 
         {
             rewind(SrcFile);
             while(i < nbouteilles && (lireBouteille(&bout, SrcFile)) != -1)
@@ -274,7 +259,7 @@ long RechercheBoutId(long Id_recherche, int nbouteilles)
     i = 0;
     if (i < nbouteilles)
     {
-        if(openDatabase(&SrcFile) != -1) 
+        if(openDatabase(&SrcFile, FILENAMEBOUTEILLE) != -1) 
         {
             rewind(SrcFile);
             while(i < nbouteilles && (lireBouteille(&bout, SrcFile)) != -1)

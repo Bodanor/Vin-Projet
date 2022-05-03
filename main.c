@@ -1,7 +1,7 @@
 /**
  * @file main.c
  * @author Christos Papadopoulos (Christos.papadopoulos@student.hepl.be)
- * @brief Dossier 1
+ * @brief Dossier 4
  * @version 0.1
  * @date 2022-02-17
  *
@@ -12,7 +12,7 @@
 #include <stdio.h>
 
 
-#include "util_vin.h"
+#include "utils.h"
 #include "vin.h"
 #include "bouteille.h"
 
@@ -44,18 +44,19 @@ int main(int argc, char* argv[])
 {
 
     /* Variable pour le vin */
-    struct Vin vins[2];
+    struct Vin vin;
     int nvin;   /* nombre de vins encodés */
-    struct IndVin index[1000];  /* index */
-    char choice[3], appellation[40], millesime[5];
-    int i, status, menu_option = 0, c;
+    struct IndVin *index = NULL;
+    FILE *fvins = NULL;
+    char choice[3], appellation[40], millesime[5], idVin[10];
+    int i, status, menu_option = 0, c, id;
 
     nvin = 0;
     /* Fin Variable des vins */
 
     /* Variable pour les bouteilles */
     struct Bouteille bout;
-    FILE *fbouteilles= NULL;
+    FILE *fbouteilles = NULL;
     int nbouteilles = 0;
     long bout_bytes;
     char emplacement[7];
@@ -63,6 +64,23 @@ int main(int argc, char* argv[])
     long Id_bout;
      /* Fin Variable des bouteilles */
     
+
+    fvins = fopen("vins.dat", "rb");
+    if (fvins == NULL)
+    {
+        printf("Ouverture du fichier vins.dat impossible !\nVous traivaillez en mode local\n");
+    }
+    else
+    {
+        printf("Chargement des vins en cours ...\n");
+        while (fread(&vin, sizeof(struct Vin), 1, fvins))
+        {
+            InsertionIND(&index, &vin);
+            nvin++;
+        }
+        printf("Nombre de vins charge : %d" ,nvin);
+        fclose(fvins);
+    }
     do
     {
         do
@@ -122,7 +140,7 @@ int main(int argc, char* argv[])
                     switch(menu_option)
                     {
                         case 1:
-                                while (nvin < 1000 && EncodeVin(vins, index, &vins[nvin], nvin))
+                                while (nvin < 1000 && EncodeVin(&index, nvin))
                                 {
                                     nvin++;
                                 }
@@ -140,17 +158,7 @@ int main(int argc, char* argv[])
                             c = '\n';
                             if (nvin > 0)
                             {
-                                while(i < nvin && c == '\n')
-                                {
-                                    AfficheVin((vins+((index+i)->IdVin -1)));
-                                    if (i + 1 != nvin && nvin >= 2)
-                                    {
-                                        printf("Appuyez sur enter pour afficher le vin suivant !\n");
-                                        c = getchar();
-                                    }
-                                    
-                                    i++;
-                                }
+                                afficherToutVin(index);
                             }
                             else
                                 printf("\n\nAucun vin n'a encore ete encoder !\n\n");
@@ -162,7 +170,7 @@ int main(int argc, char* argv[])
                             {
                                 printf("Entrez l'appellation a rechercher : ");
                                 secureInput(appellation, sizeof(appellation));
-                                RechercheAppellation(vins, index, nvin, appellation);
+                                RechercheAppellation(index, nvin, appellation);
                             }
                             else
                                 printf("\n\nAucun vin n'a encore ete encoder !\n\n");
@@ -175,16 +183,56 @@ int main(int argc, char* argv[])
                             {
                                 printf("Entrez le millesime a rechercher : ");
                                 secureInput(millesime, sizeof(millesime));
-                                RechercheMillesime(vins, index, nvin, millesime);
+                                RechercheMillesime(index, nvin, millesime);
                             }
                             else
                                 printf("\n\nAucun vin n'a encore ete encoder !\n\n");
                             break;
                         
-                        
+                        case 5:
+                            if (nvin > 0)
+                            {
+                                do
+                                {
+                                    status = 0;
+                                    printf("Entrez l'id du vin a modifier : ");
+                                    status = secureInput(idVin, sizeof(idVin));
+                                    if (status == 0)
+                                    {
+                                        printf("Id mal forme !\n");
+                                        status = -1;
+                                    }
+                                    i = 0;
+                                    while (status != -1 && idVin[i] != '\0')
+                                    {
+                                        if (idVin[i] != '\0' && !isdigit(idVin[i]))
+                                        {
+                                            printf("Id mal forme !\n");
+                                            status = -1;
+                                            i = 0;
+                                        }
+                                        else
+                                            i++;
+                                    }
+                                    id = atoi(idVin);
+                                    if (id > nvin)
+                                    {
+                                        printf("L'ID n'existe pas !\n");
+                                        status = -1;
+                                    }
+                                }while (status == -1);
+
+                                modifierVin(&index, id);
+                            }
+                            else
+                                 printf("\n\nAucun vin n'a encore ete encoder !\n\n");
+                            break;
+
+
                         default:
                             if (menu_option != 99)
                                 printf("\nChoix invalide !\n");
+
                         
                     }
                 }while(menu_option != 99);
@@ -225,8 +273,9 @@ int main(int argc, char* argv[])
                         
                         case 1:
 
-                            while (nvin < 1000 && (status = EncodeBouteille(&bout, nbouteilles, vins, nvin)) == 1)
+                            while (nvin < 1000 && (status = EncodeBouteille(&bout, nbouteilles, &vin, nvin)) == 1)
                             {
+                                
                                 nbouteilles++;
                             }
                             if (nvin == 1000)
@@ -243,7 +292,7 @@ int main(int argc, char* argv[])
 
                             if (nbouteilles > 0)
                             {
-                                if (openDatabase(&fbouteilles) != -1)
+                                if (openDatabase(&fbouteilles, FILENAMEBOUTEILLE) != -1)
                                 {
                                     rewind(fbouteilles);
                                     while (i < nbouteilles && (lireBouteille(&bout, fbouteilles) != -1) && c == '\n')
@@ -279,7 +328,7 @@ int main(int argc, char* argv[])
 
                                 } while (status == 0);
 
-                                if (openDatabase(&fbouteilles) != -1)
+                                if (openDatabase(&fbouteilles, FILENAMEBOUTEILLE) != -1)
                                 {
                                     rewind(fbouteilles);
                                     bout_bytes = RechercheBoutempl(emplacement, nbouteilles);
@@ -357,7 +406,7 @@ int main(int argc, char* argv[])
                                             }while (Id_bout <= 0);
 
 
-                                            if (openDatabase(&fbouteilles) != -1)
+                                            if (openDatabase(&fbouteilles,  FILENAMEBOUTEILLE) != -1)
                                             {
                                                 bout_bytes = RechercheBoutId(Id_bout, nbouteilles);
                                                 if (bout_bytes != 0)
@@ -382,7 +431,7 @@ int main(int argc, char* argv[])
                                                 status = secureInput(emplacement, sizeof(emplacement));
                                             }while (status == 0);
 
-                                            if (openDatabase(&fbouteilles) != -1)
+                                            if (openDatabase(&fbouteilles,  FILENAMEBOUTEILLE) != -1)
                                             {
                                                 status =fseek(fbouteilles, 0, SEEK_SET);
                                                 
@@ -474,15 +523,16 @@ void show_menu_vin(void)
     printf("1) Ajouter des vins\n");
     printf("2) Afficher tout les vins\n");
     printf("3) Rechercher par Appellation\n");
-    printf("4) Rechercher par Millesime\n\n");
+    printf("4) Rechercher par Millesime\n");
+    printf("5) Modifier un vin\n\n");
     printf("99) Revenir au menu precedent\n\n");
 }
 
 void show_menu_bouteille(void)
 {
-    printf("1) Ajout d'une nouvelle bouteille (en fin de fichier)\n");
-    printf("2) Affichage du fichier bouteilles(avec arret premature si souhaite)\n");
-    printf("3) Recherche de la fiche d'une bouteille (dont on donne l'emplacement)\n");
+    printf("1) Ajout d'une nouvelle bouteille\n");
+    printf("2) Affichage du fichier bouteilles\n");
+    printf("3) Recherche de la fiche d'une bouteille\n");
     printf("4) Consommation d'une bouteille\n\n");
     printf("99) Revenir au menu precedent\n\n");
 

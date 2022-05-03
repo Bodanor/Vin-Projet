@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
+#include <errno.h>
+#include <string.h>
 
 /**
  * @brief   Function that can be used to safely write data from the stdin file.
@@ -17,5 +19,5 @@ short secureInput(char* str, int size_str);
 
 short verifyInt(char *str, int str_length);
 
-
+int openDatabase(FILE**srcFile, char *filename);
 #endif

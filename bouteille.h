@@ -7,8 +7,9 @@
 #include <time.h>
 
 #include "vin.h"
+#include "utils.h"
 
-#define FILENAME "FileBouteilles.dat"
+#define FILENAMEBOUTEILLE "bouteilles.dat"
 
 struct date
 {
@@ -32,7 +33,6 @@ struct Bouteille
     
 };
 
-int openDatabase(FILE**srcFile);
 void affichageBouteille(struct Bouteille *bout);
 short ecrireBouteille(struct Bouteille *bout, FILE *srcFile);
 short lireBouteille(struct Bouteille *bout, FILE *srcFile);

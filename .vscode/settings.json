@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "bouteille.h": "c"
+        "bouteille.h": "c",
+        "chrono": "c",
+        "variant": "c"
     }
 }

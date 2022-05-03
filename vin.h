@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "util_vin.h"
+#include "utils.h"
 
 
 struct Vin
@@ -30,6 +30,7 @@ struct IndVin
     char Producteur[50];
     char Annee[5];
     long IdVin;
+    struct IndVin *psvt;
 };
 
 /**
@@ -41,7 +42,7 @@ struct IndVin
  * @return 1    : If all data have been successfully encodedd into the vin struct without beeing interrupted.
  */
 
-short EncodeVin(struct Vin *vins, struct IndVin *index, struct Vin* vin, int nvin);
+short EncodeVin(struct IndVin **index, int nvin);
 /**
  * @brief print all the fields of a given ID if it exists in the array of struct to the screen.
  *
@@ -61,11 +62,13 @@ void AfficheVin(struct Vin* vin);
  * @param index valid struct index, that contains all the encode sorted wine
  * @param nvin  how many wine have been encoded till now
  */
-void InsertionIND(struct Vin* vin, struct IndVin* index, int nvin);
+int InsertionIND(struct IndVin** index, struct Vin *vin);
 
-void RechercheAppellation(struct Vin *vin, struct IndVin *index, int nvin, char *Appellation);
-void RechercheMillesime(struct Vin *vin, struct IndVin *index, int nvin, char *Millesime);
-long RechercheExistant(struct Vin *vin, struct IndVin *index, int nvin, struct Vin *vinrecherche);
-
+void RechercheAppellation(struct IndVin *index, int nvin, char *Appellation);
+void RechercheMillesime(struct IndVin *index, int nvin, char *Millesime);
+short RechercheExistant(struct IndVin *index, struct Vin vin);
+void afficherToutVin(struct IndVin *index);
+int modifierVin(struct IndVin **index, long id);
+void supressionIND(struct IndVin **ptete, long idVin);
 
 #endif
