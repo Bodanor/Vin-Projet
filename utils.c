@@ -23,8 +23,6 @@ short secureInput(char* str, int size_str)
     }
     *str = '\0';
 
-    if (i == 0)
-        return 0;
     return i;
     /****************************************************************************/
     /*  INPUT : pointeur de structure vin                                       */
@@ -62,4 +60,45 @@ int openDatabase(FILE**srcFile, char *filename)
     }
     return 1;
 
+}
+
+int verifyDate(char *buffer)
+{
+    char *pt = buffer;
+    int i;
+    for (i = 0; i < 2; i++)
+    {
+        if (isdigit(*pt) != 0)
+        {
+            pt++;
+        }
+        else
+            return -1;
+    }
+    if (*pt++ == '/')
+    {
+        for (i = 0; i < 2; i++)
+        {
+            if (isdigit(*pt) != 0)
+                pt++;
+            else
+                return -1;
+        }
+
+        if (*pt++ == '/')
+        {
+            for (i = 0; i < 4 ; i++)
+            {
+                if (isdigit(*pt) != 0)
+                    pt++;
+                else
+                    return -1;
+            }
+            return 0;
+        }
+        else
+            return -1;
+    }
+    else    
+        return -1;
 }

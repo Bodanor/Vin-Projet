@@ -70,5 +70,5 @@ short RechercheExistant(struct IndVin *index, struct Vin vin);
 void afficherToutVin(struct IndVin *index);
 int modifierVin(struct IndVin **index, long id);
 void supressionIND(struct IndVin **ptete, long idVin);
-
+int read_single_bottle(long id, struct Vin *vin);
 #endif

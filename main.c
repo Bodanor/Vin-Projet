@@ -50,13 +50,13 @@ int main(int argc, char* argv[])
     FILE *fvins = NULL;
     char choice[3], appellation[40], millesime[5], idVin[10];
     int i, status, menu_option = 0, c, id;
-
+    
     nvin = 0;
     /* Fin Variable des vins */
 
     /* Variable pour les bouteilles */
-    struct Bouteille bout;
     FILE *fbouteilles = NULL;
+    struct Bouteille bout;
     int nbouteilles = 0;
     long bout_bytes;
     char emplacement[7];
@@ -78,8 +78,24 @@ int main(int argc, char* argv[])
             InsertionIND(&index, &vin);
             nvin++;
         }
-        printf("Nombre de vins charge : %d" ,nvin);
+        printf("Nombre de vins charge : %d\n\n" ,nvin);
         fclose(fvins);
+    }
+
+    fbouteilles = fopen("bouteilles.dat", "rb");
+    if (fbouteilles == NULL)
+    {
+         printf("Ouverture du fichier bouteilles.dat impossible !\nVous traivaillez en mode local\n");
+    }
+    else
+    {
+        printf("Chargement des bouteilles en cours ...\n");
+        while (fread(&bout, sizeof(struct Bouteille), 1, fbouteilles))
+        {
+            nbouteilles++;
+        }
+        printf("Nombre de bouteilles charge : %d\n\n" ,nbouteilles);
+        fclose(fbouteilles);
     }
     do
     {
@@ -273,7 +289,7 @@ int main(int argc, char* argv[])
                         
                         case 1:
 
-                            while (nvin < 1000 && (status = EncodeBouteille(&bout, nbouteilles, &vin, nvin)) == 1)
+                            while (nvin < 1000 && (status = EncodeBouteille(nbouteilles, &vin, nvin)) == 1)
                             {
                                 
                                 nbouteilles++;

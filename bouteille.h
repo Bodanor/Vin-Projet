@@ -36,7 +36,7 @@ struct Bouteille
 void affichageBouteille(struct Bouteille *bout);
 short ecrireBouteille(struct Bouteille *bout, FILE *srcFile);
 short lireBouteille(struct Bouteille *bout, FILE *srcFile);
-short EncodeBouteille(struct Bouteille *bout, int nbouteille, struct Vin *vins, int nvin);
+short EncodeBouteille(int nbouteille, struct Vin *vins, int nvin);
 long RechercheBoutempl(char *recherchern, int nbouteilles);
 long RechercheBoutId(long Id_recherche, int nbouteilles);
 int consommerBouteille(struct Bouteille *bout);

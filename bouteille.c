@@ -63,16 +63,63 @@ short lireBouteille (struct Bouteille *bout, FILE *srcFile)
     }
     return 1;
 }
-short EncodeBouteille(struct Bouteille *bout, int nbouteille, struct Vin *vins, int nvin)
+short EncodeBouteille(int nbouteille, struct Vin *vins, int nvin)
 {
-    int status = 0;
+    int status = 0, date_verif = 0;
     char buffer[10], emplacement[7];
     FILE *srcFile;
+    struct Bouteille bout;
+    struct Vin vin;
+    bout.IdBouteille = nbouteille + 1;
+    int annee_tmp;
+    char dateBuffer[100];
 
-    bout->IdBouteille = nbouteille + 1;
+    do
+    {
+        printf("Entrez l'ID du vin : ");
+        status = secureInput(buffer, sizeof(buffer));
+        if (status == 0)
+            return 0;
+        if (verifyInt(buffer,status) == -1)
+        {
+            printf("\nID du vin mal forme !\n");
+            bout.IdVin = -1;
+        }
+        else
+        {
+            sscanf(buffer, "%ld", &bout.IdVin);
+            if (bout.IdVin < 1 || bout.IdVin > nvin)
+            {
+                printf("\nID n'existe pas !\n");
+                bout.IdVin = -1;
+            }
+        }
 
-    printf("Entrez la date d'achat : ");
-    scanf("%hd/%hd/%hd%*c", &bout->DateAchat.jour, &bout->DateAchat.mois, &bout->DateAchat.annee);
+    }while ( bout.IdVin == -1);
+    
+    do
+    {
+        printf("Entrez la date d'achat : ");
+        status = secureInput(dateBuffer, sizeof(dateBuffer));
+        date_verif = verifyDate(dateBuffer);
+        if (status == 0)
+           return 0;
+        else if (date_verif == -1)
+            printf("La date est mal forme !\n");
+
+        sscanf(dateBuffer, "%hd/%hd/%hd", &bout.DateAchat.jour, &bout.DateAchat.mois, &bout.DateAchat.annee);
+        read_single_bottle(bout.IdVin, &vin);
+        annee_tmp = atoi(vin.Annee);
+        
+        if(bout.DateAchat.annee < annee_tmp)
+        {
+            printf("La date d'achat est inferieure a l'annee du vin !\n");
+            date_verif = -1;
+        }
+
+
+
+    }while (date_verif == -1);
 
     do
     {
@@ -83,16 +130,16 @@ short EncodeBouteille(struct Bouteille *bout, int nbouteille, struct Vin *vins, 
         if (verifyInt(buffer, status) == -1)
         {
             printf("\nPrix d'achat mal forme !\n");
-            bout->PrixAchat = -1;
+            bout.PrixAchat = -1;
         }
         else
         {
-            sscanf(buffer, "%d", &bout->PrixAchat);
-            if (bout->PrixAchat <= -1)
+            sscanf(buffer, "%d", &bout.PrixAchat);
+            if (bout.PrixAchat <= -1)
              printf("\nPrix d'achat invalide !\n");
         }
 
-    }while (bout->PrixAchat <= -1);
+    }while (bout.PrixAchat <= -1);
 
     do
     {
@@ -103,16 +150,16 @@ short EncodeBouteille(struct Bouteille *bout, int nbouteille, struct Vin *vins, 
         if (verifyInt(buffer, status) == -1)
         {
             printf("\nContenance mal forme !\n");
-            bout->Contenance = -1;
+            bout.Contenance = -1;
         }
         else
         {
-            sscanf(buffer, "%d", &bout->Contenance);
-            if (bout->Contenance <= 0)
+            sscanf(buffer, "%d", &bout.Contenance);
+            if (bout.Contenance <= 0)
                 printf("\nContenance invalide !\n");
         }
 
-    }while (bout->Contenance <= 0);
+    }while (bout.Contenance <= 0);
 
 
     do
@@ -124,17 +171,17 @@ short EncodeBouteille(struct Bouteille *bout, int nbouteille, struct Vin *vins, 
         if (verifyInt(buffer, status) == -1)
         {
             printf("\nVolume d'alcool mal forme !\n");
-            bout->VolumeAlcool = -1;
+            bout.VolumeAlcool = -1;
         }
         else
         {
-            sscanf(buffer, "%d", &bout->VolumeAlcool);
-            if (bout->VolumeAlcool <= 1)
+            sscanf(buffer, "%d", &bout.VolumeAlcool);
+            if (bout.VolumeAlcool <= 1)
                 printf("\nVolume d'alcool invalide ! \n");
         
         }
 
-    }while(bout->VolumeAlcool <= 1);
+    }while(bout.VolumeAlcool <= 1);
 
     do
     {
@@ -143,13 +190,19 @@ short EncodeBouteille(struct Bouteille *bout, int nbouteille, struct Vin *vins, 
         if (status == 0)
             return 0;
 
-        if (RechercheBoutempl(emplacement, nbouteille))
+        if (verifyInt(emplacement, status) == -1)
+        {
+            printf("\nEmplacement mal forme !\n");
+           status = -1;
+        }
+
+        else if (RechercheBoutempl(emplacement, nbouteille))
         {
             printf("\nCet emplacement existe deja !\n");
             status = -1;
         }
         else
-            strcpy(bout->Emplacement, emplacement);
+            strcpy(bout.Emplacement, emplacement);
     }while(status == -1);
 
 
@@ -162,46 +215,25 @@ short EncodeBouteille(struct Bouteille *bout, int nbouteille, struct Vin *vins, 
         if (verifyInt(buffer, status) == -1)
         {
             printf("\nID du fournisseur mal forme !\n");
-            bout->IdFournisseur = -1;
+            bout.IdFournisseur = -1;
         }
         else
         {
-            sscanf(buffer, "%ld", &bout->IdFournisseur);
-            if (bout->IdFournisseur <= -1)
+            sscanf(buffer, "%ld", &bout.IdFournisseur);
+            if (bout.IdFournisseur <= -1)
                 printf("\nID du fournisseur invalide !\n");
         }
 
-    }while(bout->IdFournisseur <= -1);
+    }while(bout.IdFournisseur <= -1);
 
-
-    do
-    {
-        printf("Entrez l'ID du vin : ");
-        status = secureInput(buffer, sizeof(buffer));
-        if (status == 0)
-            return 0;
-        if (verifyInt(buffer,status) == -1)
-            printf("\nID du vin mal forme !\n");
-        else
-        {
-            sscanf(buffer, "%ld", &bout->IdVin);
-            if (bout->IdVin < 1 || bout->IdVin > nvin)
-            {
-                printf("\nID n'existe pas !\n");
-                bout->IdVin = -1;
-            }
-        }
-
-    }while ( bout->IdVin == -1);
-
-    bout->DateConso.annee = 0;
-    bout->DateConso.jour = 0;
-    bout->DateConso.mois = 0;
-    *bout->NoteConso = '\0';
+    bout.DateConso.annee = 0;
+    bout.DateConso.jour = 0;
+    bout.DateConso.mois = 0;
+    *bout.NoteConso = '\0';
 
     if (openDatabase(&srcFile, FILENAMEBOUTEILLE) != -1)
     {
-        if (ecrireBouteille(bout, srcFile) == -1)
+        if (ecrireBouteille(&bout, srcFile) == -1)
         {
             fclose(srcFile);
             return -1;

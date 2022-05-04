@@ -20,4 +20,5 @@ short secureInput(char* str, int size_str);
 short verifyInt(char *str, int str_length);
 
 int openDatabase(FILE**srcFile, char *filename);
+int verifyDate(char *buffer);
 #endif

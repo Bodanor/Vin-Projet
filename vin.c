@@ -115,7 +115,7 @@ int InsertionIND(struct IndVin** index, struct Vin *vin)
 
 void RechercheAppellation(struct IndVin *index, int nvin, char *Appellation)
 {
-    struct IndVin *pt = NULL, *pt_prec = NULL;
+    struct IndVin *pt = NULL;
     struct Vin vin;
     FILE *fp = NULL;
     char c;
@@ -128,7 +128,6 @@ void RechercheAppellation(struct IndVin *index, int nvin, char *Appellation)
         {
             while (pt != NULL && strcmp(Appellation, pt->Appellation) != 0)
             {
-                pt_prec = pt;
                 pt = pt->psvt;
             }
             c = '\n';
@@ -152,10 +151,10 @@ void RechercheAppellation(struct IndVin *index, int nvin, char *Appellation)
 
 void RechercheMillesime(struct IndVin *index, int nvin, char *Millesime)
 {
-    struct IndVin *pt = NULL, *pt_prec = NULL;
+    struct IndVin *pt = NULL;
     struct Vin vin;
     FILE *fp = NULL;
-    char c;
+    char c = 0;
 
     pt = index;
 
@@ -165,11 +164,11 @@ void RechercheMillesime(struct IndVin *index, int nvin, char *Millesime)
         {
             while (pt != NULL && strcmp(Millesime, pt->Annee) != 0)
             {
-                pt_prec = pt;
                 pt = pt->psvt;
             }
 
-            while (pt != NULL && strcmp(Millesime, pt->Annee) == 0)
+            c = '\n';
+            while (pt != NULL && strcmp(Millesime, pt->Annee) == 0 && c == '\n')
             {
                 fseek(fp, sizeof(struct Vin) *(pt->IdVin-1), SEEK_SET);
                 fread(&vin, sizeof(struct Vin), 1, fp);
@@ -212,9 +211,8 @@ short RechercheExistant(struct IndVin *index, struct Vin vin)
                                 return 1;
             pt = pt->psvt;
         }
-        return 0;
     }
-
+    return 0;
 
 }
 
@@ -418,11 +416,9 @@ void afficherToutVin(struct IndVin *index)
 
 int modifierVin(struct IndVin **index, long id)
 {
-    struct IndVin *pt;
     struct Vin vin;
     int status = 0;
-    int color_choice;
-    int date;
+    int color_choice = 0;
     int garde_check;
     FILE *fp = NULL;
     char tmp[100];
@@ -536,7 +532,7 @@ int modifierVin(struct IndVin **index, long id)
 
     fwrite(&vin, sizeof(struct Vin), 1, fp);
     fclose(fp);
-
+    return 1;
 }
 
 void supressionIND(struct IndVin **ptete, long idVin)
@@ -562,4 +558,20 @@ void supressionIND(struct IndVin **ptete, long idVin)
             pt_prec->psvt = pt->psvt;
         }
     }
+}
+
+int read_single_bottle(long id, struct Vin *vin)
+{
+    FILE *fp = fopen("vins.dat", "rb");
+    if (fp == NULL)
+    {
+        printf("Ouverture du fichier impossible !\n");
+    }
+    else
+    {
+        fseek(fp, sizeof(struct Vin)*(id-1), SEEK_SET);
+        fread(vin, sizeof(struct Vin), 1, fp);
+        fclose(fp);
+    }
+    return 0;
 }
