@@ -15,7 +15,7 @@
 #include "utils.h"
 #include "vin.h"
 #include "bouteille.h"
-
+#include "fournisseurs.h"
 /**
  *
  * @brief Prints a nice Header on the terminal
@@ -31,7 +31,7 @@ void show_header(void);
  */
 void show_main_menu(int nvin);
 
-
+void show_menu_fournisseurs();
 void show_menu_bouteille(void);
 void show_menu_vin(void);
 /* fonction pour menu sur emplacement ou idbouteille*/
@@ -63,7 +63,10 @@ int main(int argc, char* argv[])
     char Identifiant_bouteille[10];
     long Id_bout;
      /* Fin Variable des bouteilles */
-    
+    struct fournisseur four;
+    int nfournisseurs = 0;
+    struct fournisseur *index_fournisseur = NULL;
+    FILE *ffournisseurs = NULL;
 
     fvins = fopen("vins.dat", "rb");
     if (fvins == NULL)
@@ -85,7 +88,7 @@ int main(int argc, char* argv[])
     fbouteilles = fopen("bouteilles.dat", "rb");
     if (fbouteilles == NULL)
     {
-         printf("Ouverture du fichier bouteilles.dat impossible !\nVous traivaillez en mode local\n");
+        printf("Ouverture du fichier bouteilles.dat impossible !\nVous traivaillez en mode local\n");
     }
     else
     {
@@ -97,6 +100,24 @@ int main(int argc, char* argv[])
         printf("Nombre de bouteilles charge : %d\n\n" ,nbouteilles);
         fclose(fbouteilles);
     }
+
+    ffournisseurs = fopen("fournisseurs.dat", "rb");
+    if (ffournisseurs == NULL)
+    {
+        printf("Ouverture du fichier fournisseurs.dat impossible !\nVous traivaillez en mode local\n");
+    }
+    else
+    {
+        printf("Chargement des fournisseurs en cours ...\n");
+        while (fread(&four, sizeof(struct fournisseur), 1, ffournisseurs))
+        {
+            InsertionINDFournisseurs(&index_fournisseur, four);
+            nfournisseurs++;
+        }
+        printf("Nombre de fournisseurs charge : %d\n\n" ,nfournisseurs);
+        fclose(ffournisseurs);
+    }
+
     do
     {
         do
@@ -156,11 +177,11 @@ int main(int argc, char* argv[])
                     switch(menu_option)
                     {
                         case 1:
-                                while (nvin < 1000 && EncodeVin(&index, nvin))
+                                while (nvin < 10000 && EncodeVin(&index, nvin))
                                 {
                                     nvin++;
                                 }
-                                if (nvin == 1000)
+                                if (nvin == 10000)
                                 {
                                     printf("\n\nLa taille maximum du tableau vin a ete atteinte !\n\n");
                                 }
@@ -289,17 +310,12 @@ int main(int argc, char* argv[])
                         
                         case 1:
 
-                            while (nvin < 1000 && (status = EncodeBouteille(nbouteilles, &vin, nvin)) == 1)
+                            while (EncodeBouteille(nbouteilles, &vin, nvin))
                             {
                                 
                                 nbouteilles++;
                             }
-                            if (nvin == 1000)
-                            {
-                                printf("\n\nLa taille maximum du tableau bouteille a ete atteinte !\n\n");
-                            }
-                            else if (status == 0)
-                                printf("\n\nEncodage interrompu par l'utilisateur !\n\n");
+                            printf("\n\nEncodage interrompu par l'utilisateur !\n\n");
                             
                             break;
                         case 2:
@@ -490,6 +506,63 @@ int main(int argc, char* argv[])
                 menu_option = 0;
                 break;
             }
+            break;
+            case 3:
+                do
+                {
+                    do
+                    {
+                        show_header();
+                        show_menu_fournisseurs();
+                        status = 0;
+                        printf("Choix --> ");
+                        secureInput(choice, sizeof(choice));
+
+                        i = 0;
+                        while (status != -1 && choice[i] != '\0')
+                        {
+                            if (choice[i] != '\0' && !isdigit(choice[i]))
+                            {
+                                printf("\nChoix mal forme !\n");
+                                status = -1;
+                                i = 0;
+                            }
+                            else
+                                i++;
+                        }
+                    }while (status == -1);
+                    menu_option = atoi(choice);
+                    switch (menu_option)
+                    {
+                        case 1:
+                            while (ajouterFournisseurs(&index_fournisseur, nfournisseurs))
+                            {
+                                nfournisseurs++;
+                            }
+                            printf("\n\nEncodage interrompu par l'utilisateur !\n\n");
+                                
+                            break;
+                        break;
+                        case 2:
+                        afficherToutFournisseurs(index_fournisseur);
+                        break;
+                        case 3:
+                        break;
+                        case 4:
+                        break;
+                        case 5:
+                        break;
+
+                        default:
+                            if (menu_option != 99)
+                                printf("\nChoix invalide !\n");
+
+                    }
+
+                }while(menu_option != 99);
+                menu_option = 0;
+                break;
+
             default:
                 if (menu_option != 99)
                     printf("\nChoix invalide !\n");
@@ -553,12 +626,22 @@ void show_menu_bouteille(void)
     printf("99) Revenir au menu precedent\n\n");
 
 }
+void show_menu_fournisseurs(void)
+{
+    printf("1) Ajout d'un nouveau fournisseur\n");
+    printf("2) Affichage des fournisseurs\n");
+    printf("3) Recherche de la fiche d'un fournisseur\n");
+    printf("4) Modification de la fiche d'un fournisseur\n");
+    printf("5) Suppression d'un fournisseur\n\n");
+    printf("99) Revenir au menu precedent\n\n");
 
+}
 void show_main_menu(int nvin)
 {
     printf("1) Vins\n");
     if (nvin > 0)
-        printf("2) Bouteilles\n\n");
+        printf("2) Bouteilles\n");
+    printf("3) Fournisseurs\n\n");
     printf("99) Quitter\n\n");
 }
 

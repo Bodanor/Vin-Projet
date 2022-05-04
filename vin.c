@@ -344,18 +344,6 @@ short EncodeVin(struct IndVin **index, int nvin)
 
 
     return 1;
-    /*
-    Id : 1
-Producteur : jsp
-Nom de cuvee : fd
-Appelation : fd
-Region : coucou
-Pays : 1800
-Couleur : rouge tranquille
-Annee : 1800
-Bio : o
-Garde : 29 a 83 ans
-*/
 }
 
 /****************************************************************************/
