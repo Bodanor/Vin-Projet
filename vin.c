@@ -560,7 +560,7 @@ void supressionIND(struct IndVin **ptete, long idVin)
     }
 }
 
-int read_single_bottle(long id, struct Vin *vin)
+int read_single_wine(long id, struct Vin *vin)
 {
     FILE *fp = fopen("vins.dat", "rb");
     if (fp == NULL)

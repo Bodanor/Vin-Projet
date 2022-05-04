@@ -22,17 +22,58 @@ static short compareDate(struct date *date1, struct date *date2)//date2 plus gra
     return a;
 }
 
+double convertoToFloat(int input, int decimals)
+{
+    char buffer[10];
+    char convert[10];
+    char *pt_convert = convert;
+    char *pt_buffer = buffer;
+    long size_of_buffer;
+    int i;
+    double final_convert;
 
+    sprintf(buffer, "%d", input);
+    size_of_buffer = strlen(buffer);
+    for (i = 0; i < size_of_buffer - decimals; i++)
+        *pt_convert++ = *pt_buffer++;
+
+    *pt_convert++ = '.';
+
+    for (i = 0; i < decimals ;i++)
+        *pt_convert++ = *pt_buffer++;
+    
+    *pt_convert = '\0';
+
+    sscanf(convert, "%lf", &final_convert);
+    return final_convert;
+}
+int verifyEmplacement(char *input)
+{
+    int i;
+    char *pt = input;
+    for (i = 0; i < 4; i++)
+    {
+        if (*pt != 'i' && *pt != 'I' && *pt != 'v' && *pt != 'V' && *pt != 'x' && *pt != 'X')
+            return -1;
+        pt++;
+
+    }
+    if (isalpha(*pt++) == 0)
+        return -1;
+    if (isdigit(*pt++) == 0)
+        return -1;
+    return 0;
+}
 void affichageBouteille(struct Bouteille *bout)
 {
     printf("\nId Bouteille : %ld\n", bout->IdBouteille);
     if (bout->DateAchat.annee != 0)
     {
         printf("Date achat : %hd/%hd/%hd\n",bout->DateAchat.jour, bout->DateAchat.mois, bout->DateAchat.annee);
-        printf("Prix achat : %d\n", bout->PrixAchat);
+        printf("Prix achat : %2.lf €\n",convertoToFloat(bout->PrixAchat, 2));
     }
-    printf("Contenance : %d\n",bout->Contenance);
-    printf("Volume d'alcool : %d\n", bout->VolumeAlcool);
+    printf("Contenance : %1.lf cl\n",convertoToFloat(bout->Contenance, 1));
+    printf("Volume d'alcool : %1.lf%%\n", convertoToFloat(bout->VolumeAlcool, 1));
     if (*bout->Emplacement != '\0')
         printf("Emplacement : %s\n", bout->Emplacement);
     printf("Id du Fournisseur : %ld\n", bout->IdFournisseur);
@@ -106,15 +147,17 @@ short EncodeBouteille(int nbouteille, struct Vin *vins, int nvin)
            return 0;
         else if (date_verif == -1)
             printf("La date est mal forme !\n");
-
-        sscanf(dateBuffer, "%hd/%hd/%hd", &bout.DateAchat.jour, &bout.DateAchat.mois, &bout.DateAchat.annee);
-        read_single_bottle(bout.IdVin, &vin);
-        annee_tmp = atoi(vin.Annee);
-        
-        if(bout.DateAchat.annee < annee_tmp)
+        else
         {
-            printf("La date d'achat est inferieure a l'annee du vin !\n");
-            date_verif = -1;
+            sscanf(dateBuffer, "%hd/%hd/%hd", &bout.DateAchat.jour, &bout.DateAchat.mois, &bout.DateAchat.annee);
+            read_single_wine(bout.IdVin, &vin);
+            annee_tmp = atoi(vin.Annee);
+            
+            if(bout.DateAchat.annee < annee_tmp)
+            {
+                printf("La date d'achat est inferieure a l'annee du vin !\n");
+                date_verif = -1;
+            }
         }
 
 
@@ -190,7 +233,7 @@ short EncodeBouteille(int nbouteille, struct Vin *vins, int nvin)
         if (status == 0)
             return 0;
 
-        if (verifyInt(emplacement, status) == -1)
+        if (verifyEmplacement(emplacement) == -1)
         {
             printf("\nEmplacement mal forme !\n");
            status = -1;
@@ -202,7 +245,10 @@ short EncodeBouteille(int nbouteille, struct Vin *vins, int nvin)
             status = -1;
         }
         else
+        {
             strcpy(bout.Emplacement, emplacement);
+            status = 0;
+        }
     }while(status == -1);
 
 
@@ -233,6 +279,7 @@ short EncodeBouteille(int nbouteille, struct Vin *vins, int nvin)
 
     if (openDatabase(&srcFile, FILENAMEBOUTEILLE) != -1)
     {
+        fseek(srcFile, 0, SEEK_END);
         if (ecrireBouteille(&bout, srcFile) == -1)
         {
             fclose(srcFile);
@@ -314,19 +361,60 @@ long RechercheBoutId(long Id_recherche, int nbouteilles)
 
 int consommerBouteille(struct Bouteille *bout)
 {
-    int status = 0;
+    int status = 0, date_verif = 0;
     *bout->Emplacement = '\0';
+    char dateBuffer[100];
     
-    do
+    if (bout->DateConso.annee == 0)
     {
-        printf("Entrez la date de consommation : ");
-        scanf("%hd/%hd/%hd%*c", &bout->DateConso.jour, &bout->DateConso.mois, &bout->DateConso.annee);
-        status = compareDate(&bout->DateAchat, &bout->DateConso);
-    }while (status == -1);
+        do
+        {
+            printf("Entrez la date de consommation : ");
+            status = secureInput(dateBuffer, sizeof(dateBuffer));
+            date_verif = verifyDate(dateBuffer);
+            if (status == 0)
+            return 0;
+            else if (date_verif == -1)
+                printf("La date est mal forme !\n");
+            else
+            {
+                sscanf(dateBuffer, "%hd/%hd/%hd", &bout->DateConso.jour, &bout->DateConso.mois, &bout->DateConso.annee);
+                
+                if(compareDate(&bout->DateAchat, &bout->DateConso) < 0)
+                {
+                    printf("La date de consommation est inferieure a la date d'achat !\n");
+                    date_verif = -1;
+                }
 
-    printf("Entrez une note de consommation (optionel): ");
-    secureInput(bout->NoteConso, sizeof(bout->NoteConso));
-    return 1;
-    
+            }
+        }while (date_verif == -1);
+
+        printf("Entrez une note de consommation (optionel): ");
+        secureInput(bout->NoteConso, sizeof(bout->NoteConso));
+        return 1;
+    }
+    else
+    {
+        printf("La bouteille a deja ete consommee !\n");
+        return -1;
+    }
+
+
+}
+
+int read_single_bottle(long id, struct Bouteille *bout)
+{
+    FILE *fp = fopen("bouteilles.dat", "rb");
+    if (fp == NULL)
+    {
+        printf("Ouverture du fichier impossible !\n");
+    }
+    else
+    {
+        fseek(fp, sizeof(struct Bouteille)*(id-1), SEEK_SET);
+        fread(bout, sizeof(struct Bouteille), 1, fp);
+        fclose(fp);
+    }
+    return 0;
 
 }

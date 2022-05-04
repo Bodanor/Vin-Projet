@@ -48,7 +48,7 @@ short verifyInt(char *str, int str_length)
 
 int openDatabase(FILE**srcFile, char *filename)
 {
-    *srcFile = fopen(filename, "r+b"); // SI il existe pas return NULL, sinon c'est que le fichier existe
+    *srcFile = fopen(filename, "rb+"); // SI il existe pas return NULL, sinon c'est que le fichier existe
     if (*srcFile == NULL)
     {
         *srcFile = fopen(filename, "w+b");  // W+B force la creation du fichier.
@@ -94,7 +94,10 @@ int verifyDate(char *buffer)
                 else
                     return -1;
             }
-            return 0;
+            if (*pt != '\0')
+                return -1;
+            else
+                return 0;
         }
         else
             return -1;

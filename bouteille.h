@@ -40,6 +40,6 @@ short EncodeBouteille(int nbouteille, struct Vin *vins, int nvin);
 long RechercheBoutempl(char *recherchern, int nbouteilles);
 long RechercheBoutId(long Id_recherche, int nbouteilles);
 int consommerBouteille(struct Bouteille *bout);
-
+int read_single_bottle(long id, struct Bouteille *bout);
 
 #endif
